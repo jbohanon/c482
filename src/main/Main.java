@@ -1,6 +1,8 @@
 package main;
 
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
@@ -81,6 +83,7 @@ public class Main extends Application {
 //        grid.setGridLinesVisible(true);
         grid.setHgap(5);
         grid.setVgap(5);
+
         grid.setTranslateX(60);
         grid.setTranslateY(30);
         grid.setMaxHeight(Control.USE_PREF_SIZE);
@@ -109,6 +112,9 @@ public class Main extends Application {
 
         GridPane grid = new GridPane();
 
+        grid.setMaxWidth(80);
+        grid.setMinWidth(80);
+
         HBox titleHbox = new HBox();
         titleHbox.setAlignment(Pos.CENTER);
         titleHbox.setMaxHeight(Control.USE_PREF_SIZE);
@@ -128,6 +134,18 @@ public class Main extends Application {
         grid.add(titleHbox, 0, 0);
 
         ListView<String> listArea = new ListView<String>();
+        listArea.setEditable(true);
+
+        ObservableList names = FXCollections.observableArrayList();
+        names.addAll(
+                "Adam", "Alex", "Alfred", "Albert",
+                "Brenda", "Connie", "Derek", "Donny",
+                "Lynne", "Myrtle", "Rose", "Rudolph",
+                "Tony", "Trudy", "Williams", "Zach"
+        );
+
+        listArea.setItems(names);
+
         listArea.setMaxWidth(Control.USE_PREF_SIZE);
 //        listArea.setBackground(BackgroundRepeat.REPEAT);
         listArea.setMaxHeight(Control.USE_PREF_SIZE);
