@@ -1,30 +1,23 @@
-import javafx.collections.ObservableList;
+public class InHouse extends Part {
 
-import java.lang.reflect.Constructor;
+    private int _machineId;
 
-public class Product {
-    private ObservableList<Part> _associatedParts;
-    private int _id;
-    private String _name;
-    private double _price;
-    private int _stock;
-    private int _min;
-    private int _max;
-
-    public Product(
+    public InHouse(
             int id,
             String name,
             double price,
             int stock,
             int min,
-            int max
-    ) {
+            int max,
+            int machineId) {
+        super(id, name, price, stock, min, max);
         _id = id;
         _name = name;
         _price = price;
         _stock = stock;
         _min = min;
         _max = max;
+        _machineId = machineId;
     }
 
     public void setId(int id) {
@@ -69,15 +62,10 @@ public class Product {
         return _max;
     }
 
-    public void addAssociatedPart(Part part) {
-        _associatedParts.add(part);
+    public void setMachineId(int machineId) {
+        _machineId = machineId;
     }
-
-    public boolean deleteAssociatedPart(Part selectedAsPart) {
-        return _associatedParts.remove(selectedAsPart);
-    }
-
-    public ObservableList<Part> getAllAssociatedParts() {
-        return _associatedParts;
+    public int getMachineId() {
+        return _machineId;
     }
 }

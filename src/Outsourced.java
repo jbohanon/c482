@@ -1,30 +1,23 @@
-import javafx.collections.ObservableList;
+public class Outsourced extends Part {
 
-import java.lang.reflect.Constructor;
+    private String _companyName;
 
-public class Product {
-    private ObservableList<Part> _associatedParts;
-    private int _id;
-    private String _name;
-    private double _price;
-    private int _stock;
-    private int _min;
-    private int _max;
-
-    public Product(
+    public Outsourced(
             int id,
             String name,
             double price,
             int stock,
             int min,
-            int max
-    ) {
+            int max,
+            String companyName) {
+        super(id, name, price, stock, min, max);
         _id = id;
         _name = name;
         _price = price;
         _stock = stock;
         _min = min;
         _max = max;
+        _companyName = companyName;
     }
 
     public void setId(int id) {
@@ -69,15 +62,10 @@ public class Product {
         return _max;
     }
 
-    public void addAssociatedPart(Part part) {
-        _associatedParts.add(part);
+    public void setCompanyName(String companyName) {
+        _companyName = companyName;
     }
-
-    public boolean deleteAssociatedPart(Part selectedAsPart) {
-        return _associatedParts.remove(selectedAsPart);
-    }
-
-    public ObservableList<Part> getAllAssociatedParts() {
-        return _associatedParts;
+    public String getCompanyName() {
+        return _companyName;
     }
 }

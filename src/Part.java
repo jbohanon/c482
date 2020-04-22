@@ -1,10 +1,10 @@
 public abstract class Part {
-    private int _id;
-    private String _name;
-    private double _price;
-    private int _stock;
-    private int _min;
-    private int _max;
+    protected int _id;
+    protected String _name;
+    protected double _price;
+    protected int _stock;
+    protected int _min;
+    protected int _max;
 
     public Part(
             int id,
@@ -13,6 +13,7 @@ public abstract class Part {
             int stock,
             int min,
             int max) {
+//        this(id, name, price, stock, min, max);
         _id = id;
         _name = name;
         _price = price;
@@ -21,45 +22,21 @@ public abstract class Part {
         _max = max;
     }
 
-    public void setId(int id) {
-        _id = id;
-    }
-    public int getId() {
-        return _id;
-    }
+    public abstract void setId(int id);
+    public abstract int getId();
 
-    public void setName(String name) {
-        _name = name;
-    }
-    public String getName() {
-        return _name;
-    }
+    public abstract void setName(String name);
+    public abstract String getName();
 
-    public void setPrice(double price) {
-        _price = price;
-    }
-    public double getPrice() {
-        return _price;
-    }
+    public abstract void setPrice(double price);
+    public abstract double getPrice();
 
-    public void setStock(int stock) {
-        _stock = stock;
-    }
-    public int getStock() {
-        return _stock;
-    }
+    public abstract void setStock(int stock);
+    public abstract int getStock();
 
-    public void setMin(int min) {
-        _min = min;
-    }
-    public int getMin() {
-        return _min;
-    }
+    public abstract void setMin(int min);
+    public abstract int getMin();
 
-    public void setMax(int max) {
-        _max = max;
-    }
-    public int getMax() {
-        return _max;
-    }
+    public abstract void setMax(int max);
+    public abstract int getMax();
 }
