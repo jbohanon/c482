@@ -1,15 +1,17 @@
-public class Outsourced extends Part {
+package main;
 
-    private String _companyName;
+public class InHouse extends Part {
 
-    public Outsourced(
+    private int _machineId;
+
+    public InHouse(
             int id,
             String name,
             double price,
             int stock,
             int min,
             int max,
-            String companyName) {
+            int machineId) {
         super(id, name, price, stock, min, max);
         _id = id;
         _name = name;
@@ -17,7 +19,7 @@ public class Outsourced extends Part {
         _stock = stock;
         _min = min;
         _max = max;
-        _companyName = companyName;
+        _machineId = machineId;
     }
 
     public void setId(int id) {
@@ -62,10 +64,10 @@ public class Outsourced extends Part {
         return _max;
     }
 
-    public void setCompanyName(String companyName) {
-        _companyName = companyName;
+    public void setMachineId(int machineId) {
+        _machineId = machineId;
     }
-    public String getCompanyName() {
-        return _companyName;
+    public int getMachineId() {
+        return _machineId;
     }
 }

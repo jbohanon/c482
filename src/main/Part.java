@@ -1,3 +1,5 @@
+package main;
+
 public abstract class Part {
     protected int _id;
     protected String _name;

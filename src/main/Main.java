@@ -1,42 +1,45 @@
 package main;
 
 import javafx.application.Application;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Control;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
+import javafx.util.Callback;
+import org.jetbrains.annotations.NotNull;
 
 public class Main extends Application {
 
-    @Override
-    public void start(Stage primaryStage) throws Exception{
+    private static final Inventory _fullInventory = new Inventory();
 
-        Parent root = FXMLLoader.load(getClass().getResource("main.fxml"));
+    private static void preLoadInventory() {
+        _fullInventory.addPart(new Outsourced(1, "Part 1", 5, 5, 5, 300, "Joe's Hardware"));
+        _fullInventory.addPart(new Outsourced(2, "Part 2", 10, 25, 5, 200, "Jane's Supply"));
+        _fullInventory.addPart(new InHouse(3, "Part 3", 6.37, 12, 10, 50, 103));
+        _fullInventory.addPart(new InHouse(4, "Part 4", 0.12, 60, 20, 75, 105));
+    }
+
+    @Override
+    public void start(@NotNull Stage primaryStage) throws Exception {
+
+        preLoadInventory();
+//        Parent root = FXMLLoader.load(getClass().getResource("main.fxml"));
         primaryStage.setResizable(false);
         Scene mainScreen = mainScreenDef(primaryStage, new BorderPane());
         primaryStage.setScene(mainScreen);
         primaryStage.show();
     }
 
-    private Scene mainScreenDef(Stage primaryStage, BorderPane root) throws Exception {
-        Scene scene = new Scene(root, 600, 600);
+    private @NotNull
+    Scene mainScreenDef(Stage primaryStage, BorderPane root) throws Exception {
+        Scene scene = new Scene(root, 1200, 400);
 
         HBox titlePane = addTitleHbox();
         root.setTop(titlePane);
@@ -44,29 +47,14 @@ public class Main extends Application {
         GridPane partsGrid = addPartsGrid();
         root.setLeft(partsGrid);
 
-//        grid.setAlignment(Pos.TOP_LEFT);
-//        grid.setHgap(5);
-//        grid.setVgap(5);
-//        grid.setPadding(new Insets(25, 25, 25, 25));
-//        Text sceneTitle = new Text("Inventory Management System");
-//        sceneTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
-//        grid.add(sceneTitle, 0, 0, 2, 1);
-//        Button btn = new Button();
-//        btn.setText("Yo, yo, yo");
-//        btn.setOnAction(new EventHandler<ActionEvent>() {
-//            @Override
-//            public void handle(ActionEvent event) {
-//                System.out.println("It worked?");
-//            }
-//        });
-//        grid.add(btn, 0, 1);
         return scene;
     }
 
-    private HBox addTitleHbox() {
+    private @NotNull
+    HBox addTitleHbox() {
         HBox hbox = new HBox();
 
-        hbox.setPadding(new Insets(30, 60, 0, 60));
+        hbox.setPadding(new Insets(30, 30, 0, 30));
         hbox.setSpacing(10);
 
         Text titleText = new Text("Inventory Management System");
@@ -77,81 +65,83 @@ public class Main extends Application {
         return hbox;
     }
 
-    private GridPane addPartsGrid() {
+    private @NotNull
+    GridPane addPartsGrid() {
         GridPane grid = new GridPane();
-        grid.setMaxWidth(300);
+
 //        grid.setGridLinesVisible(true);
+
+        grid.setMaxWidth(Control.USE_PREF_SIZE);
         grid.setHgap(5);
         grid.setVgap(5);
+        grid.setMinSize(350, 150);
+        grid.setMaxSize(401, 190);
 
-        grid.setTranslateX(60);
+        grid.setTranslateX(30);
         grid.setTranslateY(30);
-        grid.setMaxHeight(Control.USE_PREF_SIZE);
+//        grid.setMaxHeight(Control.USE_PREF_SIZE);
         grid.setPadding(new Insets(10));
         grid.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, new CornerRadii(4), BorderWidths.DEFAULT)));
 
         Text partsText = new Text("Parts");
+        partsText.minWidth(Control.USE_PREF_SIZE);
+//        partsText.minWidth(Control.USE_PREF_SIZE);
         partsText.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, 14));
-
-
         partsText.setTextAlignment(TextAlignment.LEFT);
-        grid.add(partsText, 0, 0, 2, 1);
+
+//        grid.addColumn(2, partsText);
+        grid.add(partsText, 0, 0, 1, 1);
+
+        Pane spacer = new Pane();
+        spacer.setPrefWidth(100);
+        grid.add(spacer, 1, 0, 1, 1);
 
         Button searchBtn = new Button("Search");
-        grid.add(searchBtn, 3, 0);
+//        searchBtn.setTranslateX(230);
+        grid.add(searchBtn, 2, 0, 1, 1);
 
-        grid.add(subList("Part ID"), 0,1,1,1);
-        grid.add(subList("Part Name"), 1,1,1,1);
-        grid.add(subList("Inventory Level"), 2,1,1,1);
-        grid.add(subList("Price/Cost per Unit"), 3,1,1,1);
+        TextField searchArea = new TextField();
+        grid.add(searchArea, 3, 0, 1, 1);
+
+        TableView<Part> partTableView = new TableView<>(_fullInventory.getAllParts());
+        partTableView.setMinSize(380, 110);
+        partTableView.setMaxSize(425, 128);
+
+
+        TableColumn<Part, String> partID = new TableColumn<>("Part ID");
+        partID.setCellValueFactory(new PropertyValueFactory<>("id"));
+        partTableView.getColumns().add(partID);
+
+        TableColumn<Part, String> partName = new TableColumn<>("Part Name");
+        partName.setCellValueFactory(new PropertyValueFactory<>("name"));
+        partTableView.getColumns().add(partName);
+
+        TableColumn<Part, String> partInventory = new TableColumn<>("Inventory Level");
+        partInventory.setCellValueFactory(new PropertyValueFactory<>("stock"));
+        partTableView.getColumns().add(partInventory);
+
+        TableColumn<Part, Double> partPrice = new TableColumn<>("Price/Cost per Unit");
+//        partPrice.setText("$");
+//        partPrice.setStyle("$");
+        partPrice.setCellValueFactory(new PropertyValueFactory<>("price"));
+        partPrice.setCellFactory(getCustomCellFactory());
+        partTableView.getColumns().add(partPrice);
+
+        grid.add(partTableView, 0,1,4,1);
 
         return grid;
     }
 
-    private GridPane subList(String title) {
+    private Callback<TableColumn<Part, Double>, TableCell<Part, Double>> getCustomCellFactory() {
+        return col -> new TableCell<>() {
 
-        GridPane grid = new GridPane();
-
-        grid.setMaxWidth(80);
-        grid.setMinWidth(80);
-
-        HBox titleHbox = new HBox();
-        titleHbox.setAlignment(Pos.CENTER);
-        titleHbox.setMaxHeight(Control.USE_PREF_SIZE);
-        titleHbox.setBackground(
-                new Background(
-                        new BackgroundFill(
-                                Paint.valueOf("rgb(90%,90%,90%)"),
-                                null,
-                                new Insets(5, 0, 5, 0)
-                        )
-                )
-        );
-        Text titleBox = new Text(title);
-        titleBox.setTextAlignment(TextAlignment.CENTER);
-        titleHbox.getChildren().add(titleBox);
-//        titleBox.
-        grid.add(titleHbox, 0, 0);
-
-        ListView<String> listArea = new ListView<String>();
-        listArea.setEditable(true);
-
-        ObservableList names = FXCollections.observableArrayList();
-        names.addAll(
-                "Adam", "Alex", "Alfred", "Albert",
-                "Brenda", "Connie", "Derek", "Donny",
-                "Lynne", "Myrtle", "Rose", "Rudolph",
-                "Tony", "Trudy", "Williams", "Zach"
-        );
-
-        listArea.setItems(names);
-
-        listArea.setMaxWidth(Control.USE_PREF_SIZE);
-//        listArea.setBackground(BackgroundRepeat.REPEAT);
-        listArea.setMaxHeight(Control.USE_PREF_SIZE);
-        grid.add(listArea, 0, 1);
-
-        return grid;
+            @Override
+            public void updateItem(final Double item, boolean empty) {
+                if (item != null) {
+                    setText(String.format("$%1$,.2f", item));
+                }
+            }
+        };
     }
 
     public static void main(String[] args) {

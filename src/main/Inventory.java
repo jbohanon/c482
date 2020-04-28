@@ -1,14 +1,20 @@
-import javafx.beans.InvalidationListener;
+package main;
+
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Inventory {
-    private ObservableList<Part> _allParts;
-    private ObservableList<Product> _allProducts;
+    private final ObservableList<Part> _allParts;
+    private final ObservableList<Product> _allProducts;
+
+    public Inventory() {
+        _allParts = FXCollections.observableList(new ArrayList<>());
+        _allProducts = FXCollections.observableList(new ArrayList<>());
+    }
 
     public void addPart(Part newPart) {
         _allParts.add(newPart);
@@ -30,7 +36,7 @@ public class Inventory {
     }
 
     public Product lookupProduct(int productId) {
-//        AtomicReference<Product> retval = new AtomicReference<>();
+//        AtomicReference<main.Product> retval = new AtomicReference<>();
         final Product[] retval = new Product[1];
 
         _allProducts.forEach((p) -> {
