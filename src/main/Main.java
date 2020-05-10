@@ -297,22 +297,136 @@ public class Main extends Application {
         addPartStage.setAlwaysOnTop(true);
 //        addPartStage.initModality(Modality.WINDOW_MODAL);
         addPartStage.setResizable(false);
-        Scene addPartScreen = addPartScreenDef(new StackPane());
+        Scene addPartScreen = addPartScreenDef(new GridPane());
         addPartStage.setScene(addPartScreen);
         addPartStage.show();
     }
 
     private @NotNull
-    Scene addPartScreenDef(StackPane root) {
+    Scene addPartScreenDef(GridPane root) {
         Scene scene = new Scene(root, 350, 500);
+//        root.setGridLinesVisible(true);
+        root.setPadding(new Insets(10, 10, 10, 10));
+        root.setVgap(10);
+
+        GridPane grid = new GridPane();
+//        grid.setGridLinesVisible(true);
+
+        Text addPartText = new Text("Add Part");
+        addPartText.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, 14));
+        grid.add(addPartText, 0, 0);
+
+        final ToggleGroup grp = new ToggleGroup();
+
+        RadioButton rb1 = new RadioButton("In-House");
+        rb1.setMinWidth(60);
+        rb1.setToggleGroup(grp);
+        rb1.setSelected(true);
+
+        RadioButton rb2 = new RadioButton("Outsourced");
+        rb2.setToggleGroup(grp);
+
+        grid.add(rb1, 1, 0);
+        grid.add(rb2, 2, 0);
+
+        grid.setHgap(10);
+
+        root.add(grid, 0, 0, 4, 1);
+
+        Text idLabel = new Text("ID");
+        idLabel.minWidth(100);
+        idLabel.setTextAlignment(TextAlignment.LEFT);
+        TextField idEntry = new TextField("Auto Gen - Disabled");
+        idEntry.setEditable(false);
+        root.add(idLabel, 0, 1, 2, 1);
+        root.add(idEntry, 1, 1, 2, 1);
+
+        Text nameLabel = new Text("Name");
+        nameLabel.minWidth(100);
+        nameLabel.setTextAlignment(TextAlignment.LEFT);
+        TextField nameEntry = new TextField("Part Name");
+        root.add(nameLabel, 0, 2, 2, 1);
+        root.add(nameEntry, 1, 2, 2, 1);
+
+        Text invLabel = new Text("Inv");
+        invLabel.minWidth(100);
+        invLabel.setTextAlignment(TextAlignment.LEFT);
+        TextField invEntry = new TextField("Inv");
+        root.add(invLabel, 0, 3, 2, 1);
+        root.add(invEntry, 1, 3, 2, 1);
+
+        Text pcLabel = new Text("Price/Cost");
+        pcLabel.minWidth(100);
+        pcLabel.setTextAlignment(TextAlignment.LEFT);
+        TextField pcEntry = new TextField("Price/Cost");
+        pcEntry.setEditable(false);
+        root.add(pcLabel, 0, 4, 2, 1);
+        root.add(pcEntry, 1, 4, 2, 1);
+
+        Text maxLabel = new Text("Max");
+        maxLabel.minWidth(100);
+        maxLabel.setTextAlignment(TextAlignment.LEFT);
+        TextField maxEntry = new TextField("Max");
+        root.add(maxLabel, 0, 5, 1, 1);
+        root.add(maxEntry, 1, 5, 1, 1);
+
+        Text minLabel = new Text("Min");
+        minLabel.minWidth(100);
+        minLabel.setTextAlignment(TextAlignment.LEFT);
+        TextField minEntry = new TextField("Min");
+        root.add(minLabel, 2, 5, 1, 1);
+        root.add(minEntry, 3, 5, 1, 1);
+
+        if(rb1.isSelected()) {
+            Text machIDLabel = new Text("Machine ID");
+            machIDLabel.minWidth(100);
+            machIDLabel.setTextAlignment(TextAlignment.LEFT);
+            TextField machIDEntry = new TextField("Mach ID");
+            root.add(machIDLabel, 0, 6, 2, 1);
+            root.add(machIDEntry, 1, 6, 2, 1);
+        } else {
+            Text compNameLabel = new Text("Company Name");
+            compNameLabel.minWidth(100);
+            compNameLabel.setTextAlignment(TextAlignment.LEFT);
+            TextField compNameEntry = new TextField("Comp Nm");
+            root.add(compNameLabel, 0, 7, 2, 1);
+            root.add(compNameEntry, 1, 7, 2, 1);
+        }
 
         Button btn = new Button("Woohoo");
         btn.setOnMouseClicked(mouseEvent -> {
             addPartStage.close();
         });
-        root.getChildren().add(btn);
+        root.add(btn, 0, 8, 2, 1);
 
         return scene;
+    }
+
+    private @NotNull
+    GridPane topTitleAndRadio() {
+        GridPane grid = new GridPane();
+        grid.setGridLinesVisible(true);
+
+        Text addPartText = new Text("Add Part");
+        addPartText.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, 14));
+        grid.add(addPartText, 0, 0);
+
+        final ToggleGroup grp = new ToggleGroup();
+
+        RadioButton rb1 = new RadioButton("In-House");
+        rb1.setMinWidth(60);
+        rb1.setToggleGroup(grp);
+        rb1.setSelected(true);
+
+        RadioButton rb2 = new RadioButton("Outsourced");
+        rb2.setToggleGroup(grp);
+
+        grid.add(rb1, 1, 0);
+        grid.add(rb2, 2, 0);
+
+//        grid.setPadding(new Insets(10, 10, 10, 10));
+        grid.setHgap(10);
+        return grid;
     }
 
     public static void main(String[] args) {
