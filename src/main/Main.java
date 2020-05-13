@@ -2,23 +2,22 @@ package main;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Main extends Application {
 
@@ -305,16 +304,18 @@ public class Main extends Application {
     private @NotNull
     Scene addPartScreenDef(GridPane root) {
         Scene scene = new Scene(root, 350, 500);
-//        root.setGridLinesVisible(true);
-        root.setPadding(new Insets(10, 10, 10, 10));
+
+        root.setPadding(new Insets(20, 30, 20, 30));
         root.setVgap(10);
 
-        GridPane grid = new GridPane();
-//        grid.setGridLinesVisible(true);
+        GridPane topGrid = new GridPane();
+
+        root.setGridLinesVisible(true);
+        topGrid.setGridLinesVisible(true);
 
         Text addPartText = new Text("Add Part");
         addPartText.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, 14));
-        grid.add(addPartText, 0, 0);
+        topGrid.add(addPartText, 0, 0);
 
         final ToggleGroup grp = new ToggleGroup();
 
@@ -326,107 +327,170 @@ public class Main extends Application {
         RadioButton rb2 = new RadioButton("Outsourced");
         rb2.setToggleGroup(grp);
 
-        grid.add(rb1, 1, 0);
-        grid.add(rb2, 2, 0);
+        topGrid.add(rb1, 1, 0);
+        topGrid.add(rb2, 2, 0);
 
-        grid.setHgap(10);
+        topGrid.setHgap(10);
 
-        root.add(grid, 0, 0, 4, 1);
+        root.add(topGrid, 0, 0);
 
+        GridPane idGrid = new GridPane();
         Text idLabel = new Text("ID");
         idLabel.minWidth(100);
-        idLabel.setTextAlignment(TextAlignment.LEFT);
-        TextField idEntry = new TextField("Auto Gen - Disabled");
+        idLabel.setTextAlignment(TextAlignment.CENTER);
+        TextField idEntry = new TextField();
+        idEntry.setPromptText("Auto Gen - Disabled");
+        idEntry.setDisable(true);
         idEntry.setEditable(false);
-        root.add(idLabel, 0, 1, 2, 1);
-        root.add(idEntry, 1, 1, 2, 1);
+        idGrid.add(idLabel, 0, 0);
+        idGrid.add(idEntry, 1, 0);
+        root.add(idGrid, 0, 1);
 
+        GridPane nameGrid = new GridPane();
         Text nameLabel = new Text("Name");
         nameLabel.minWidth(100);
-        nameLabel.setTextAlignment(TextAlignment.LEFT);
-        TextField nameEntry = new TextField("Part Name");
-        root.add(nameLabel, 0, 2, 2, 1);
-        root.add(nameEntry, 1, 2, 2, 1);
+        nameLabel.setTextAlignment(TextAlignment.CENTER);
+        TextField nameEntry = new TextField();
+        nameEntry.setPromptText("Part Name");
+        nameGrid.add(nameLabel, 0, 0);
+        nameGrid.add(nameEntry, 1, 0);
+        root.add(nameGrid, 0, 2);
 
+        GridPane invGrid = new GridPane();
         Text invLabel = new Text("Inv");
         invLabel.minWidth(100);
-        invLabel.setTextAlignment(TextAlignment.LEFT);
-        TextField invEntry = new TextField("Inv");
-        root.add(invLabel, 0, 3, 2, 1);
-        root.add(invEntry, 1, 3, 2, 1);
+        invLabel.setTextAlignment(TextAlignment.CENTER);
+        TextField invEntry = new TextField();
+        invEntry.setPromptText("Inv");
+        invGrid.add(invLabel, 0, 0);
+        invGrid.add(invEntry, 1, 0);
+        root.add(invGrid, 0, 3);
 
+        GridPane pcGrid = new GridPane();
         Text pcLabel = new Text("Price/Cost");
         pcLabel.minWidth(100);
-        pcLabel.setTextAlignment(TextAlignment.LEFT);
-        TextField pcEntry = new TextField("Price/Cost");
-        pcEntry.setEditable(false);
-        root.add(pcLabel, 0, 4, 2, 1);
-        root.add(pcEntry, 1, 4, 2, 1);
+        pcLabel.setTextAlignment(TextAlignment.CENTER);
+        TextField pcEntry = new TextField();
+        pcEntry.setPromptText("Price/Cost");
+        pcGrid.add(pcLabel, 0, 0);
+        pcGrid.add(pcEntry, 1, 0);
+        root.add(pcGrid, 0, 4);
 
+        GridPane minmaxGrid = new GridPane();
         Text maxLabel = new Text("Max");
         maxLabel.minWidth(100);
-        maxLabel.setTextAlignment(TextAlignment.LEFT);
-        TextField maxEntry = new TextField("Max");
-        root.add(maxLabel, 0, 5, 1, 1);
-        root.add(maxEntry, 1, 5, 1, 1);
+        maxLabel.setTextAlignment(TextAlignment.CENTER);
+        TextField maxEntry = new TextField();
+        maxEntry.setPromptText("Max");
+        minmaxGrid.add(maxLabel, 0, 0);
+        minmaxGrid.add(maxEntry, 1, 0);
 
         Text minLabel = new Text("Min");
         minLabel.minWidth(100);
-        minLabel.setTextAlignment(TextAlignment.LEFT);
-        TextField minEntry = new TextField("Min");
-        root.add(minLabel, 2, 5, 1, 1);
-        root.add(minEntry, 3, 5, 1, 1);
+        minLabel.setTextAlignment(TextAlignment.CENTER);
+        TextField minEntry = new TextField();
+        minEntry.setPromptText("Min");
+        minmaxGrid.add(minLabel, 2, 0);
+        minmaxGrid.add(minEntry, 3, 0);
 
-        if(rb1.isSelected()) {
-            Text machIDLabel = new Text("Machine ID");
-            machIDLabel.minWidth(100);
-            machIDLabel.setTextAlignment(TextAlignment.LEFT);
-            TextField machIDEntry = new TextField("Mach ID");
-            root.add(machIDLabel, 0, 6, 2, 1);
-            root.add(machIDEntry, 1, 6, 2, 1);
-        } else {
-            Text compNameLabel = new Text("Company Name");
-            compNameLabel.minWidth(100);
-            compNameLabel.setTextAlignment(TextAlignment.LEFT);
-            TextField compNameEntry = new TextField("Comp Nm");
-            root.add(compNameLabel, 0, 7, 2, 1);
-            root.add(compNameEntry, 1, 7, 2, 1);
-        }
+        root.add(minmaxGrid, 0, 5);
 
-        Button btn = new Button("Woohoo");
-        btn.setOnMouseClicked(mouseEvent -> {
+        GridPane machIDGrid = new GridPane();
+        Text machIDLabel = new Text("Machine ID");
+        machIDLabel.minWidth(100);
+        machIDLabel.setTextAlignment(TextAlignment.CENTER);
+        TextField machIDEntry = new TextField();
+        machIDEntry.setPromptText("Mach ID");
+        machIDGrid.add(machIDLabel, 0, 0);
+        machIDGrid.add(machIDEntry, 1, 0);
+
+        GridPane compNameGrid = new GridPane();
+        Text compNameLabel = new Text("Company Name");
+        compNameLabel.minWidth(100);
+        compNameLabel.setTextAlignment(TextAlignment.CENTER);
+        TextField compNameEntry = new TextField();
+        compNameEntry.setPromptText("Comp Nm");
+        compNameGrid.add(compNameLabel, 0, 0);
+        compNameGrid.add(compNameEntry, 1, 0);
+
+        GridPane btnGrid = new GridPane();
+        Pane s1 = new Pane();
+        s1.setPrefWidth(50);
+        btnGrid.add(s1, 0, 0);
+
+        Button addInBtn = new Button("Add1");
+        addInBtn.setOnMouseClicked(mouseEvent -> {
+            _fullInventory.addPart(new InHouse(
+                    getNextPartId(),
+                    nameEntry.getText(),
+                    Double.parseDouble(pcEntry.getText()),
+                    Integer.parseInt(invEntry.getText()),
+                    Integer.parseInt(minEntry.getText()),
+                    Integer.parseInt(maxEntry.getText()),
+                    Integer.parseInt(machIDEntry.getText())
+            ));
+            _displayedInventory = _fullInventory;
             addPartStage.close();
         });
-        root.add(btn, 0, 8, 2, 1);
+
+        Button addOutBtn = new Button("Add2");
+        addOutBtn.setOnMouseClicked(mouseEvent -> {
+            _fullInventory.addPart(new Outsourced(
+                    getNextPartId(),
+                    nameEntry.getText(),
+                    Double.parseDouble(pcEntry.getText()),
+                    Integer.parseInt(invEntry.getText()),
+                    Integer.parseInt(minEntry.getText()),
+                    Integer.parseInt(maxEntry.getText()),
+                    compNameEntry.getText()
+            ));
+            _displayedInventory = _fullInventory;
+            addPartStage.close();
+        });
+
+        btnGrid.add(addInBtn, 1, 0);
+
+        Pane s2 = new Pane();
+        s2.setPrefWidth(50);
+        btnGrid.add(s2, 2, 0);
+
+        Button cancelBtn = new Button("Cancel");
+        cancelBtn.setOnMouseClicked(mouseEvent -> addPartStage.close());
+        btnGrid.add(cancelBtn, 3, 0);
+
+        AtomicBoolean altered = new AtomicBoolean(false);
+
+        root.add(machIDGrid, 0, 6);
+        root.add(btnGrid, 0, 7);
+
+        rb1.setOnAction( action -> {
+            if(altered.get()) {
+                root.getChildren().remove(compNameGrid);
+                btnGrid.getChildren().remove(addOutBtn);
+            }
+            root.add(machIDGrid, 0, 6);
+            btnGrid.add(addInBtn, 1, 0);
+            altered.set(true);
+        });
+        rb2.setOnAction( action -> {
+            root.getChildren().remove(machIDGrid);
+            btnGrid.getChildren().remove(addInBtn);
+            root.add(compNameGrid, 0, 6);
+            btnGrid.add(addOutBtn, 1, 0);
+            altered.set(true);
+        });
 
         return scene;
     }
 
-    private @NotNull
-    GridPane topTitleAndRadio() {
-        GridPane grid = new GridPane();
-        grid.setGridLinesVisible(true);
-
-        Text addPartText = new Text("Add Part");
-        addPartText.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, 14));
-        grid.add(addPartText, 0, 0);
-
-        final ToggleGroup grp = new ToggleGroup();
-
-        RadioButton rb1 = new RadioButton("In-House");
-        rb1.setMinWidth(60);
-        rb1.setToggleGroup(grp);
-        rb1.setSelected(true);
-
-        RadioButton rb2 = new RadioButton("Outsourced");
-        rb2.setToggleGroup(grp);
-
-        grid.add(rb1, 1, 0);
-        grid.add(rb2, 2, 0);
-
-//        grid.setPadding(new Insets(10, 10, 10, 10));
-        grid.setHgap(10);
-        return grid;
+    private static int getNextPartId() {
+        return 1 +
+                _fullInventory
+                        .getAllParts()
+                        .stream()
+                        .mapToInt(Part::getId)
+                        .max()
+                        .orElse(0);
     }
 
     public static void main(String[] args) {
