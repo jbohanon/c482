@@ -18,6 +18,7 @@ import javafx.util.Callback;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class Main extends Application {
 
@@ -25,6 +26,7 @@ public class Main extends Application {
     private static Inventory _displayedInventory = new Inventory();
 
     private static Stage addPartStage;
+    private static Stage modifyPartStage;
 
     private static void preLoadInventory() {
         _fullInventory.addPart(new Outsourced(1, "Part 1", 5, 5, 5, 300, "Joe's Hardware"));
@@ -166,13 +168,12 @@ public class Main extends Application {
         Button addBtn = new Button("Add");
         addBtn.setPrefWidth(60);
         addBtn.setAlignment(Pos.CENTER);
-        addBtn.setOnMouseClicked(mouseEvent -> {
-            addPartStageDef();
-        });
+        addBtn.setOnMouseClicked(mouseEvent -> addPartStageDef());
         grid.add(addBtn, 1, 2, 1, 1);
 
         Button modifyBtn = new Button("Modify");
         modifyBtn.setPrefWidth(60);
+        modifyBtn.setOnMouseClicked(mouseEvent -> modifyPartStageDef(partTableView.getSelectionModel().getSelectedItem()));
         grid.add(modifyBtn, 2, 2, 1, 1);
 
         Button delBtn = new Button("Delete");
@@ -478,6 +479,235 @@ public class Main extends Application {
             root.add(compNameGrid, 0, 6);
             btnGrid.add(addOutBtn, 1, 0);
             altered.set(true);
+        });
+
+        return scene;
+    }
+
+    // Modify Part Screen Def
+    private void modifyPartStageDef(Part modPart) {
+        modifyPartStage = new Stage();
+        modifyPartStage.setAlwaysOnTop(true);
+//        modifyPartStage.initModality(Modality.WINDOW_MODAL);
+        modifyPartStage.setResizable(false);
+        Scene modifyPartScreen;
+        try {
+            modifyPartScreen = modifyPartScreenDef(new GridPane(), modPart);
+        } catch (Exception e) {
+            return;
+        }
+        modifyPartStage.setScene(modifyPartScreen);
+        modifyPartStage.show();
+    }
+
+    private @NotNull
+    Scene modifyPartScreenDef(GridPane root, Part modPart) throws Exception {
+        AtomicReference<InHouse> dispIn = new AtomicReference<>();
+        AtomicReference<Outsourced> dispOut = new AtomicReference<>();
+        if(modPart.getClass() == InHouse.class) {
+            dispIn.set((InHouse) modPart);
+        } else {
+            dispOut.set((Outsourced) modPart);
+        }
+        Scene scene = new Scene(root, 350, 500);
+
+        root.setPadding(new Insets(20, 30, 20, 30));
+        root.setVgap(10);
+
+        GridPane topGrid = new GridPane();
+
+        root.setGridLinesVisible(true);
+        topGrid.setGridLinesVisible(true);
+
+        Text modifyPartText = new Text("Modify Part");
+        modifyPartText.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, 14));
+        topGrid.add(modifyPartText, 0, 0);
+
+        final ToggleGroup grp = new ToggleGroup();
+
+        RadioButton rb1 = new RadioButton("In-House");
+        rb1.setMinWidth(60);
+        rb1.setToggleGroup(grp);
+        rb1.setSelected(true);
+
+        RadioButton rb2 = new RadioButton("Outsourced");
+        rb2.setToggleGroup(grp);
+
+        topGrid.add(rb1, 1, 0);
+        topGrid.add(rb2, 2, 0);
+
+        topGrid.setHgap(10);
+
+        root.add(topGrid, 0, 0);
+
+        GridPane idGrid = new GridPane();
+        Text idLabel = new Text("ID");
+        idLabel.minWidth(100);
+        idLabel.setTextAlignment(TextAlignment.CENTER);
+        TextField idEntry = new TextField((String.valueOf(modPart.getId())));
+        idEntry.setDisable(true);
+        idEntry.setEditable(false);
+        idGrid.add(idLabel, 0, 0);
+        idGrid.add(idEntry, 1, 0);
+        root.add(idGrid, 0, 1);
+
+        GridPane nameGrid = new GridPane();
+        Text nameLabel = new Text("Name");
+        nameLabel.minWidth(100);
+        nameLabel.setTextAlignment(TextAlignment.CENTER);
+        TextField nameEntry = new TextField(modPart.getName());
+        nameGrid.add(nameLabel, 0, 0);
+        nameGrid.add(nameEntry, 1, 0);
+        root.add(nameGrid, 0, 2);
+
+        GridPane invGrid = new GridPane();
+        Text invLabel = new Text("Inv");
+        invLabel.minWidth(100);
+        invLabel.setTextAlignment(TextAlignment.CENTER);
+        TextField invEntry = new TextField(String.valueOf(modPart.getStock()));
+        invGrid.add(invLabel, 0, 0);
+        invGrid.add(invEntry, 1, 0);
+        root.add(invGrid, 0, 3);
+
+        GridPane pcGrid = new GridPane();
+        Text pcLabel = new Text("Price/Cost");
+        pcLabel.minWidth(100);
+        pcLabel.setTextAlignment(TextAlignment.CENTER);
+        TextField pcEntry = new TextField(String.valueOf(modPart.getPrice()));
+        pcGrid.add(pcLabel, 0, 0);
+        pcGrid.add(pcEntry, 1, 0);
+        root.add(pcGrid, 0, 4);
+
+        GridPane minmaxGrid = new GridPane();
+        Text maxLabel = new Text("Max");
+        maxLabel.minWidth(100);
+        maxLabel.setTextAlignment(TextAlignment.CENTER);
+        TextField maxEntry = new TextField(String.valueOf(modPart.getMax()));
+        minmaxGrid.add(maxLabel, 0, 0);
+        minmaxGrid.add(maxEntry, 1, 0);
+
+        Text minLabel = new Text("Min");
+        minLabel.minWidth(100);
+        minLabel.setTextAlignment(TextAlignment.CENTER);
+        TextField minEntry = new TextField(String.valueOf(modPart.getMin()));
+        minmaxGrid.add(minLabel, 2, 0);
+        minmaxGrid.add(minEntry, 3, 0);
+
+        root.add(minmaxGrid, 0, 5);
+
+        GridPane machIDGrid = new GridPane();
+        Text machIDLabel = new Text("Machine ID");
+        machIDLabel.minWidth(100);
+        machIDLabel.setTextAlignment(TextAlignment.CENTER);
+        AtomicReference<TextField> machIDEntry = new AtomicReference<>();
+        machIDEntry.set(new TextField());
+        if(dispIn.get() != null) {
+            machIDEntry.set(new TextField(String.valueOf((dispIn.get().getMachineId()))));
+        }
+        machIDGrid.add(machIDLabel, 0, 0);
+        machIDGrid.add(machIDEntry.get(), 1, 0);
+
+        GridPane compNameGrid = new GridPane();
+        Text compNameLabel = new Text("Company Name");
+        compNameLabel.minWidth(100);
+        compNameLabel.setTextAlignment(TextAlignment.CENTER);
+        AtomicReference<TextField> compNameEntry = new AtomicReference<>();
+        compNameEntry.set(new TextField());
+        if(dispOut.get() != null) {
+            compNameEntry.set(new TextField(dispOut.get().getCompanyName()));
+        }
+        compNameGrid.add(compNameLabel, 0, 0);
+        compNameGrid.add(compNameEntry.get(), 1, 0);
+
+        GridPane btnGrid = new GridPane();
+        Pane s1 = new Pane();
+        s1.setPrefWidth(50);
+        btnGrid.add(s1, 0, 0);
+
+        Button modInBtn = new Button("Save1");
+        modInBtn.setOnMouseClicked(mouseEvent -> {
+            _fullInventory.updatePart(_fullInventory.getAllParts().indexOf(modPart), new InHouse(
+                    modPart.getId(),
+                    nameEntry.getText(),
+                    Double.parseDouble(pcEntry.getText()),
+                    Integer.parseInt(invEntry.getText()),
+                    Integer.parseInt(minEntry.getText()),
+                    Integer.parseInt(maxEntry.getText()),
+                    Integer.parseInt(machIDEntry.get().getText())
+            ));
+            _displayedInventory = _fullInventory;
+            modifyPartStage.close();
+        });
+
+        Button modOutBtn = new Button("Save2");
+        modOutBtn.setOnMouseClicked(mouseEvent -> {
+            _fullInventory.updatePart(_fullInventory.getAllParts().indexOf(modPart), new Outsourced(
+                    modPart.getId(),
+                    nameEntry.getText(),
+                    Double.parseDouble(pcEntry.getText()),
+                    Integer.parseInt(invEntry.getText()),
+                    Integer.parseInt(minEntry.getText()),
+                    Integer.parseInt(maxEntry.getText()),
+                    compNameEntry.get().getText()
+            ));
+            _displayedInventory = _fullInventory;
+            modifyPartStage.close();
+        });
+
+        btnGrid.add(modInBtn, 1, 0);
+
+        Pane s2 = new Pane();
+        s2.setPrefWidth(50);
+        btnGrid.add(s2, 2, 0);
+
+        Button cancelBtn = new Button("Cancel");
+        cancelBtn.setOnMouseClicked(mouseEvent -> addPartStage.close());
+        btnGrid.add(cancelBtn, 3, 0);
+
+//        AtomicBoolean altered = new AtomicBoolean(false);
+
+        if(dispIn.get() != null) {
+            root.add(machIDGrid, 0, 6);
+        } else {
+            root.add(compNameGrid, 0, 6);
+        }
+        root.add(btnGrid, 0, 7);
+
+        rb1.setOnAction( action -> {
+            if(root.getChildren().contains(compNameGrid)) {
+                root.getChildren().remove(compNameGrid);
+                btnGrid.getChildren().remove(modOutBtn);
+            }
+            dispIn.set(new InHouse(
+                    modPart.getId(),
+                    nameEntry.getText(),
+                    Double.parseDouble(pcEntry.getText()),
+                    Integer.parseInt(invEntry.getText()),
+                    Integer.parseInt(minEntry.getText()),
+                    Integer.parseInt(maxEntry.getText()),
+                    -1
+            ));
+            dispOut.set(null);
+            root.add(machIDGrid, 0, 6);
+            btnGrid.add(modInBtn, 1, 0);
+//            altered.set(true);
+        });
+        rb2.setOnAction( action -> {
+            root.getChildren().remove(machIDGrid);
+            btnGrid.getChildren().remove(modInBtn);
+            dispOut.set(new Outsourced(
+                    modPart.getId(),
+                    nameEntry.getText(),
+                    Double.parseDouble(pcEntry.getText()),
+                    Integer.parseInt(invEntry.getText()),
+                    Integer.parseInt(minEntry.getText()),
+                    Integer.parseInt(maxEntry.getText()),
+                    ""
+            ));
+            dispIn.set(null);
+            root.add(compNameGrid, 0, 6);
+            btnGrid.add(modOutBtn, 1, 0);
+//            altered.set(true);
         });
 
         return scene;
