@@ -2,11 +2,14 @@ package main;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.skin.TableViewSkin;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -27,6 +30,8 @@ public class Main extends Application {
 
     private static Stage addPartStage;
     private static Stage modifyPartStage;
+    private static Stage addProductStage;
+    private static Stage modifyProductStage;
 
     private static void preLoadInventory() {
         _fullInventory.addPart(new Outsourced(1, "Part 1", 5, 5, 5, 300, "Joe's Hardware"));
@@ -57,16 +62,16 @@ public class Main extends Application {
         Scene scene = new Scene(root, 890, 350);
 
         try {
-            HBox titlePane = addTitleHbox();
+            HBox titlePane = mainTitleHbox();
             root.setTop(titlePane);
 
-            GridPane partsGrid = addPartsGrid();
+            GridPane partsGrid = mainPartsGrid();
             root.setLeft(partsGrid);
 
-            GridPane productsGrid = addProductsGrid();
+            GridPane productsGrid = mainProductsGrid();
             root.setRight(productsGrid);
 
-            HBox exitBtn = addExitBtn();
+            HBox exitBtn = mainExitBtn();
             root.setBottom(exitBtn);
         } catch (Exception e) {
             throw e;
@@ -75,7 +80,7 @@ public class Main extends Application {
     }
 
     private @NotNull
-    HBox addTitleHbox() {
+    HBox mainTitleHbox() {
         HBox hbox = new HBox();
 
         hbox.setPadding(new Insets(30, 30, 0, 30));
@@ -90,7 +95,7 @@ public class Main extends Application {
     }
 
     private @NotNull
-    HBox addExitBtn() {
+    HBox mainExitBtn() {
         HBox hbox = new HBox();
 
         hbox.setPadding(new Insets(0, 0, 30, 550));
@@ -108,7 +113,7 @@ public class Main extends Application {
     }
 
     private @NotNull
-    GridPane addPartsGrid() {
+    GridPane mainPartsGrid() {
         GridPane grid = new GridPane();
 
 //        grid.setGridLinesVisible(true);
@@ -132,12 +137,12 @@ public class Main extends Application {
         grid.add(partsText, 0, 0, 1, 1);
 
         Button searchBtn = new Button("Search");
-        grid.add(searchBtn, 2, 0, 1, 1);
-
         TextField searchArea = new TextField();
+        grid.add(searchBtn, 2, 0, 1, 1);
         grid.add(searchArea, 3, 0, 1, 1);
 
         TableView<Part> partTableView = new TableView<>(_displayedInventory.getAllParts());
+//        TableViewSkin skin = new TableViewSkin(partTableView);
         partTableView.setMinSize(380, 110);
         partTableView.setMaxSize(425, 128);
 
@@ -161,6 +166,26 @@ public class Main extends Application {
 
         grid.add(partTableView, 0,1,4,1);
 
+        searchBtn.setOnAction(action -> {
+            String searchText = searchArea.getText();
+            if (searchText.equals("")) {
+                _displayedInventory = _fullInventory;
+                partTableView.setItems(_displayedInventory.getAllParts());
+                partTableView.refresh();
+                return;
+            }
+            Inventory tmpInv = _displayedInventory;
+            ObservableList<Product> tmpProd = tmpInv.getAllProducts();
+
+            _displayedInventory = new Inventory();
+
+            tmpProd.forEach(product -> _displayedInventory.addProduct(product));
+            ObservableList<Part> tmpList = _fullInventory.lookupPart(searchText);
+            tmpList.forEach(part -> _displayedInventory.addPart(part));
+            partTableView.setItems(_displayedInventory.getAllParts());
+            partTableView.refresh();
+        });
+
         Pane spacer1 = new Pane();
         spacer1.setPrefWidth(100);
         grid.add(spacer1, 0, 2, 1, 1);
@@ -181,6 +206,8 @@ public class Main extends Application {
         delBtn.setOnMouseClicked(mouseEvent -> {
             _fullInventory.deletePart(partTableView.getSelectionModel().getSelectedItem());
             _displayedInventory = _fullInventory;
+            partTableView.setItems(_displayedInventory.getAllParts());
+            partTableView.refresh();
         });
         grid.add(delBtn, 3, 2, 1, 1);
 
@@ -188,7 +215,7 @@ public class Main extends Application {
     }
 
     private @NotNull
-    GridPane addProductsGrid() {
+    GridPane mainProductsGrid() {
         GridPane grid = new GridPane();
 
 //        grid.setGridLinesVisible(true);
@@ -212,9 +239,8 @@ public class Main extends Application {
         grid.add(productsText, 0, 0, 1, 1);
 
         Button searchBtn = new Button("Search");
-        grid.add(searchBtn, 2, 0, 1, 1);
-
         TextField searchArea = new TextField();
+        grid.add(searchBtn, 2, 0, 1, 1);
         grid.add(searchArea, 3, 0, 1, 1);
 
         TableView<Product> productTableView = new TableView<>(_displayedInventory.getAllProducts());
@@ -241,6 +267,26 @@ public class Main extends Application {
 
         grid.add(productTableView, 0,1,4,1);
 
+        searchBtn.setOnAction(action -> {
+            String searchText = searchArea.getText();
+            if (searchText.equals("")) {
+                _displayedInventory = _fullInventory;
+                productTableView.setItems(_displayedInventory.getAllProducts());
+                productTableView.refresh();
+                return;
+            }
+            Inventory tmpInv = _displayedInventory;
+            ObservableList<Part> tmpParts = tmpInv.getAllParts();
+
+            _displayedInventory = new Inventory();
+
+            tmpParts.forEach(part -> _displayedInventory.addPart(part));
+            ObservableList<Product> tmpList = _fullInventory.lookupProduct(searchText);
+            tmpList.forEach(product -> _displayedInventory.addProduct(product));
+            productTableView.setItems(_displayedInventory.getAllProducts());
+            productTableView.refresh();
+        });
+        
         Pane spacer1 = new Pane();
         spacer1.setPrefWidth(100);
         grid.add(spacer1, 0, 2, 1, 1);
@@ -248,9 +294,11 @@ public class Main extends Application {
         Button addBtn = new Button("Add");
         addBtn.setPrefWidth(60);
         addBtn.setAlignment(Pos.CENTER);
+        addBtn.setOnAction( actionEvent -> addProductStageDef());
         grid.add(addBtn, 1, 2, 1, 1);
 
         Button modifyBtn = new Button("Modify");
+        modifyBtn.setOnAction(action -> modifyProductStageDef(productTableView.getSelectionModel().getSelectedItem()));
         modifyBtn.setPrefWidth(60);
         grid.add(modifyBtn, 2, 2, 1, 1);
 
@@ -259,6 +307,8 @@ public class Main extends Application {
         delBtn.setOnMouseClicked(mouseEvent -> {
             _fullInventory.deleteProduct(productTableView.getSelectionModel().getSelectedItem());
             _displayedInventory = _fullInventory;
+            productTableView.setItems(_displayedInventory.getAllProducts());
+            productTableView.refresh();
         });
         grid.add(delBtn, 3, 2, 1, 1);
 
@@ -419,7 +469,7 @@ public class Main extends Application {
         s1.setPrefWidth(50);
         btnGrid.add(s1, 0, 0);
 
-        Button addInBtn = new Button("Add1");
+        Button addInBtn = new Button("Add");
         addInBtn.setOnMouseClicked(mouseEvent -> {
             _fullInventory.addPart(new InHouse(
                     getNextPartId(),
@@ -434,7 +484,7 @@ public class Main extends Application {
             addPartStage.close();
         });
 
-        Button addOutBtn = new Button("Add2");
+        Button addOutBtn = new Button("Add");
         addOutBtn.setOnMouseClicked(mouseEvent -> {
             _fullInventory.addPart(new Outsourced(
                     getNextPartId(),
@@ -528,10 +578,15 @@ public class Main extends Application {
         RadioButton rb1 = new RadioButton("In-House");
         rb1.setMinWidth(60);
         rb1.setToggleGroup(grp);
-        rb1.setSelected(true);
 
         RadioButton rb2 = new RadioButton("Outsourced");
         rb2.setToggleGroup(grp);
+
+        if(dispIn.get() != null) {
+            rb1.setSelected(true);
+        } else {
+            rb2.setSelected(true);
+        }
 
         topGrid.add(rb1, 1, 0);
         topGrid.add(rb2, 2, 0);
@@ -624,7 +679,7 @@ public class Main extends Application {
         s1.setPrefWidth(50);
         btnGrid.add(s1, 0, 0);
 
-        Button modInBtn = new Button("Save1");
+        Button modInBtn = new Button("Save");
         modInBtn.setOnMouseClicked(mouseEvent -> {
             _fullInventory.updatePart(_fullInventory.getAllParts().indexOf(modPart), new InHouse(
                     modPart.getId(),
@@ -639,7 +694,7 @@ public class Main extends Application {
             modifyPartStage.close();
         });
 
-        Button modOutBtn = new Button("Save2");
+        Button modOutBtn = new Button("Save");
         modOutBtn.setOnMouseClicked(mouseEvent -> {
             _fullInventory.updatePart(_fullInventory.getAllParts().indexOf(modPart), new Outsourced(
                     modPart.getId(),
@@ -661,10 +716,8 @@ public class Main extends Application {
         btnGrid.add(s2, 2, 0);
 
         Button cancelBtn = new Button("Cancel");
-        cancelBtn.setOnMouseClicked(mouseEvent -> addPartStage.close());
+        cancelBtn.setOnMouseClicked(mouseEvent -> modifyPartStage.close());
         btnGrid.add(cancelBtn, 3, 0);
-
-//        AtomicBoolean altered = new AtomicBoolean(false);
 
         if(dispIn.get() != null) {
             root.add(machIDGrid, 0, 6);
@@ -690,7 +743,6 @@ public class Main extends Application {
             dispOut.set(null);
             root.add(machIDGrid, 0, 6);
             btnGrid.add(modInBtn, 1, 0);
-//            altered.set(true);
         });
         rb2.setOnAction( action -> {
             root.getChildren().remove(machIDGrid);
@@ -707,8 +759,455 @@ public class Main extends Application {
             dispIn.set(null);
             root.add(compNameGrid, 0, 6);
             btnGrid.add(modOutBtn, 1, 0);
-//            altered.set(true);
         });
+
+        return scene;
+    }
+
+    // Add Product Screen Def
+    private void addProductStageDef() {
+        addProductStage = new Stage();
+        addProductStage.setAlwaysOnTop(true);
+//        addPartStage.initModality(Modality.WINDOW_MODAL);
+        addProductStage.setResizable(false);
+        Scene addProductScreen = addProductScreenDef(new GridPane());
+        addProductStage.setScene(addProductScreen);
+        addProductStage.show();
+    }
+
+    private @NotNull
+    Scene addProductScreenDef(GridPane root) {
+        Scene scene = new Scene(root, 700, 500);
+
+        GridPane leftPane = new GridPane();
+
+        leftPane.setPadding(new Insets(20, 30, 20, 30));
+        leftPane.setVgap(10);
+
+        GridPane topGrid = new GridPane();
+
+        leftPane.setGridLinesVisible(true);
+        topGrid.setGridLinesVisible(true);
+
+        Text addProductText = new Text("Add Product");
+        addProductText.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, 14));
+        topGrid.add(addProductText, 0, 0);
+
+        topGrid.setHgap(10);
+
+        leftPane.add(topGrid, 0, 0);
+
+        GridPane idGrid = new GridPane();
+        Text idLabel = new Text("ID");
+        idLabel.minWidth(100);
+        idLabel.setTextAlignment(TextAlignment.CENTER);
+        TextField idEntry = new TextField();
+        idEntry.setPromptText("Auto Gen - Disabled");
+        idEntry.setDisable(true);
+        idEntry.setEditable(false);
+        idGrid.add(idLabel, 0, 0);
+        idGrid.add(idEntry, 1, 0);
+        leftPane.add(idGrid, 0, 1);
+
+        GridPane nameGrid = new GridPane();
+        Text nameLabel = new Text("Name");
+        nameLabel.minWidth(100);
+        nameLabel.setTextAlignment(TextAlignment.CENTER);
+        TextField nameEntry = new TextField();
+        nameEntry.setPromptText("Product Name");
+        nameGrid.add(nameLabel, 0, 0);
+        nameGrid.add(nameEntry, 1, 0);
+        leftPane.add(nameGrid, 0, 2);
+
+        GridPane invGrid = new GridPane();
+        Text invLabel = new Text("Inv");
+        invLabel.minWidth(100);
+        invLabel.setTextAlignment(TextAlignment.CENTER);
+        TextField invEntry = new TextField();
+        invEntry.setPromptText("Inv");
+        invGrid.add(invLabel, 0, 0);
+        invGrid.add(invEntry, 1, 0);
+        leftPane.add(invGrid, 0, 3);
+
+        GridPane pcGrid = new GridPane();
+        Text pcLabel = new Text("Price/Cost");
+        pcLabel.minWidth(100);
+        pcLabel.setTextAlignment(TextAlignment.CENTER);
+        TextField pcEntry = new TextField();
+        pcEntry.setPromptText("Price");
+        pcGrid.add(pcLabel, 0, 0);
+        pcGrid.add(pcEntry, 1, 0);
+        leftPane.add(pcGrid, 0, 4);
+
+        GridPane minmaxGrid = new GridPane();
+        Text maxLabel = new Text("Max");
+        maxLabel.minWidth(100);
+        maxLabel.setTextAlignment(TextAlignment.CENTER);
+        TextField maxEntry = new TextField();
+        maxEntry.setPromptText("Max");
+        minmaxGrid.add(maxLabel, 0, 0);
+        minmaxGrid.add(maxEntry, 1, 0);
+
+        Text minLabel = new Text("Min");
+        minLabel.minWidth(100);
+        minLabel.setTextAlignment(TextAlignment.CENTER);
+        TextField minEntry = new TextField();
+        minEntry.setPromptText("Min");
+        minmaxGrid.add(minLabel, 2, 0);
+        minmaxGrid.add(minEntry, 3, 0);
+
+        root.add(leftPane, 0,0, 1, 4);
+
+        leftPane.add(minmaxGrid, 0, 5);
+
+        ObservableList<Part> partsList = FXCollections.observableArrayList();
+
+        GridPane rightPane = new GridPane();
+
+        GridPane partSearch = new GridPane();
+        Button searchBtn = new Button("Search");
+        partSearch.add(searchBtn, 0, 0);
+
+        TextField searchArea = new TextField();
+        partSearch.add(searchArea, 1, 0);
+
+        rightPane.add(partSearch, 0, 0);
+
+        TableView<Part> partTableView1 = new TableView<>(_fullInventory.getAllParts());
+        partTableView1.setMinSize(380, 110);
+        partTableView1.setMaxSize(425, 128);
+
+
+        TableColumn<Part, String> partID1 = new TableColumn<>("Part ID");
+        partID1.setCellValueFactory(new PropertyValueFactory<>("id"));
+        partTableView1.getColumns().add(partID1);
+
+        TableColumn<Part, String> partName1 = new TableColumn<>("Part Name");
+        partName1.setCellValueFactory(new PropertyValueFactory<>("name"));
+        partTableView1.getColumns().add(partName1);
+
+        TableColumn<Part, String> partInventory1 = new TableColumn<>("Inventory Level");
+        partInventory1.setCellValueFactory(new PropertyValueFactory<>("stock"));
+        partTableView1.getColumns().add(partInventory1);
+
+        TableColumn<Part, Double> partPrice1 = new TableColumn<>("Price/Cost per Unit");
+        partPrice1.setCellValueFactory(new PropertyValueFactory<>("price"));
+        partPrice1.setCellFactory(formatCurrencyCellFactoryPart());
+        partTableView1.getColumns().add(partPrice1);
+        rightPane.add(partTableView1, 0, 1);
+
+        searchBtn.setOnAction(actionEvent -> {
+            if(searchArea.getText().equals("")){
+                partTableView1.setItems(_fullInventory.getAllParts());
+                partTableView1.refresh();
+                return;
+            }
+            partTableView1.setItems(_fullInventory.lookupPart(searchArea.getText()));
+            partTableView1.refresh();
+        });
+
+        Button addPartBtn = new Button("Add");
+
+        rightPane.add(addPartBtn, 0, 2);
+
+        TableView<Part> partTableView2 = new TableView<>(partsList);
+        partTableView2.setMinSize(380, 110);
+        partTableView2.setMaxSize(425, 128);
+
+
+        TableColumn<Part, String> partID = new TableColumn<>("Part ID");
+        partID.setCellValueFactory(new PropertyValueFactory<>("id"));
+        partTableView2.getColumns().add(partID);
+
+        TableColumn<Part, String> partName = new TableColumn<>("Part Name");
+        partName.setCellValueFactory(new PropertyValueFactory<>("name"));
+        partTableView2.getColumns().add(partName);
+
+        TableColumn<Part, String> partInventory = new TableColumn<>("Inventory Level");
+        partInventory.setCellValueFactory(new PropertyValueFactory<>("stock"));
+        partTableView2.getColumns().add(partInventory);
+
+        TableColumn<Part, Double> partPrice = new TableColumn<>("Price/Cost per Unit");
+        partPrice.setCellValueFactory(new PropertyValueFactory<>("price"));
+        partPrice.setCellFactory(formatCurrencyCellFactoryPart());
+        partTableView2.getColumns().add(partPrice);
+        rightPane.add(partTableView2, 0, 3);
+
+        addPartBtn.setOnAction(action -> {
+            partsList.add(partTableView1.getSelectionModel().getSelectedItem());
+            partTableView2.setItems(partsList);
+            partTableView2.refresh();
+        });
+
+        Button delPartBtn = new Button("Delete");
+        delPartBtn.setOnAction(action -> {
+            partsList.remove(partTableView2.getSelectionModel().getSelectedItem());
+            partTableView2.setItems(partsList);
+            partTableView2.refresh();
+        });
+        rightPane.add(delPartBtn, 0, 4);
+
+        GridPane btnGrid = new GridPane();
+        Pane s1 = new Pane();
+        s1.setPrefWidth(50);
+        btnGrid.add(s1, 0, 0);
+
+        Button addProductBtn = new Button("Save");
+        addProductBtn.setOnMouseClicked(mouseEvent -> {
+            Product newProd = new Product(
+                    getNextProductId(),
+                    nameEntry.getText(),
+                    Double.parseDouble(pcEntry.getText()),
+                    Integer.parseInt(invEntry.getText()),
+                    Integer.parseInt(minEntry.getText()),
+                    Integer.parseInt(maxEntry.getText()));
+            for (Part part : partsList) {
+                newProd.addAssociatedPart(part);
+            }
+            _fullInventory.addProduct(newProd);
+            _displayedInventory = _fullInventory;
+            addProductStage.close();
+        });
+
+        btnGrid.add(addProductBtn, 1, 0);
+
+        Pane s2 = new Pane();
+        s2.setPrefWidth(50);
+        btnGrid.add(s2, 2, 0);
+
+        Button cancelBtn = new Button("Cancel");
+        cancelBtn.setOnMouseClicked(mouseEvent -> addProductStage.close());
+        btnGrid.add(cancelBtn, 3, 0);
+
+        rightPane.add(btnGrid, 0, 5);
+
+        root.add(rightPane, 1,0, 1, 4);
+
+        return scene;
+    }
+
+
+    // Modify Product Screen Def
+    private void modifyProductStageDef(Product modProd) {
+        modifyProductStage = new Stage();
+        modifyProductStage.setAlwaysOnTop(true);
+//        modifyPartStage.initModality(Modality.WINDOW_MODAL);
+        modifyProductStage.setResizable(false);
+        Scene modifyProductScreen = modifyProductScreenDef(new GridPane(), modProd);
+        modifyProductStage.setScene(modifyProductScreen);
+        modifyProductStage.show();
+    }
+
+    private @NotNull
+    Scene modifyProductScreenDef(GridPane root, Product modProd) {
+        Scene scene = new Scene(root, 700, 500);
+
+        GridPane leftPane = new GridPane();
+
+        leftPane.setPadding(new Insets(20, 30, 20, 30));
+        leftPane.setVgap(10);
+
+        GridPane topGrid = new GridPane();
+
+        leftPane.setGridLinesVisible(true);
+        topGrid.setGridLinesVisible(true);
+
+        Text modifyProductText = new Text("Modify Product");
+        modifyProductText.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, 14));
+        topGrid.add(modifyProductText, 0, 0);
+
+        topGrid.setHgap(10);
+
+        leftPane.add(topGrid, 0, 0);
+
+        GridPane idGrid = new GridPane();
+        Text idLabel = new Text("ID");
+        idLabel.minWidth(100);
+        idLabel.setTextAlignment(TextAlignment.CENTER);
+        TextField idEntry = new TextField();
+        idEntry.setPromptText("Auto Gen - Disabled");
+        idEntry.setText(Integer.toString(modProd.getId()));
+        idEntry.setDisable(true);
+        idEntry.setEditable(false);
+        idGrid.add(idLabel, 0, 0);
+        idGrid.add(idEntry, 1, 0);
+        leftPane.add(idGrid, 0, 1);
+
+        GridPane nameGrid = new GridPane();
+        Text nameLabel = new Text("Name");
+        nameLabel.minWidth(100);
+        nameLabel.setTextAlignment(TextAlignment.CENTER);
+        TextField nameEntry = new TextField(modProd.getName());
+        nameEntry.setPromptText("Product Name");
+        nameGrid.add(nameLabel, 0, 0);
+        nameGrid.add(nameEntry, 1, 0);
+        leftPane.add(nameGrid, 0, 2);
+
+        GridPane invGrid = new GridPane();
+        Text invLabel = new Text("Inv");
+        invLabel.minWidth(100);
+        invLabel.setTextAlignment(TextAlignment.CENTER);
+        TextField invEntry = new TextField(Integer.toString(modProd.getStock()));
+        invEntry.setPromptText("Inv");
+        invGrid.add(invLabel, 0, 0);
+        invGrid.add(invEntry, 1, 0);
+        leftPane.add(invGrid, 0, 3);
+
+        GridPane pcGrid = new GridPane();
+        Text pcLabel = new Text("Price/Cost");
+        pcLabel.minWidth(100);
+        pcLabel.setTextAlignment(TextAlignment.CENTER);
+        TextField pcEntry = new TextField(Double.toString(modProd.getPrice()));
+        pcEntry.setPromptText("Price");
+        pcGrid.add(pcLabel, 0, 0);
+        pcGrid.add(pcEntry, 1, 0);
+        leftPane.add(pcGrid, 0, 4);
+
+        GridPane minmaxGrid = new GridPane();
+        Text maxLabel = new Text("Max");
+        maxLabel.minWidth(100);
+        maxLabel.setTextAlignment(TextAlignment.CENTER);
+        TextField maxEntry = new TextField(Integer.toString(modProd.getMax()));
+        maxEntry.setPromptText("Max");
+        minmaxGrid.add(maxLabel, 0, 0);
+        minmaxGrid.add(maxEntry, 1, 0);
+
+        Text minLabel = new Text("Min");
+        minLabel.minWidth(100);
+        minLabel.setTextAlignment(TextAlignment.CENTER);
+        TextField minEntry = new TextField(Integer.toString(modProd.getMin()));
+        minEntry.setPromptText("Min");
+        minmaxGrid.add(minLabel, 2, 0);
+        minmaxGrid.add(minEntry, 3, 0);
+
+        root.add(leftPane, 0,0, 1, 4);
+
+        leftPane.add(minmaxGrid, 0, 5);
+
+        ObservableList<Part> partsList = modProd.getAllAssociatedParts();
+
+        GridPane rightPane = new GridPane();
+
+        GridPane partSearch = new GridPane();
+        Button searchBtn = new Button("Search");
+        partSearch.add(searchBtn, 0, 0);
+
+        TextField searchArea = new TextField();
+        partSearch.add(searchArea, 1, 0);
+
+        rightPane.add(partSearch, 0, 0);
+
+        TableView<Part> partTableView1 = new TableView<>(_fullInventory.getAllParts());
+        partTableView1.setMinSize(380, 110);
+        partTableView1.setMaxSize(425, 128);
+
+
+        TableColumn<Part, String> partID1 = new TableColumn<>("Part ID");
+        partID1.setCellValueFactory(new PropertyValueFactory<>("id"));
+        partTableView1.getColumns().add(partID1);
+
+        TableColumn<Part, String> partName1 = new TableColumn<>("Part Name");
+        partName1.setCellValueFactory(new PropertyValueFactory<>("name"));
+        partTableView1.getColumns().add(partName1);
+
+        TableColumn<Part, String> partInventory1 = new TableColumn<>("Inventory Level");
+        partInventory1.setCellValueFactory(new PropertyValueFactory<>("stock"));
+        partTableView1.getColumns().add(partInventory1);
+
+        TableColumn<Part, Double> partPrice1 = new TableColumn<>("Price/Cost per Unit");
+        partPrice1.setCellValueFactory(new PropertyValueFactory<>("price"));
+        partPrice1.setCellFactory(formatCurrencyCellFactoryPart());
+        partTableView1.getColumns().add(partPrice1);
+        rightPane.add(partTableView1, 0, 1);
+
+        searchBtn.setOnAction(actionEvent -> {
+            if(searchArea.getText().equals("")){
+                partTableView1.setItems(_fullInventory.getAllParts());
+                partTableView1.refresh();
+                return;
+            }
+            partTableView1.setItems(_fullInventory.lookupPart(searchArea.getText()));
+            partTableView1.refresh();
+        });
+
+        Button addPartBtn = new Button("Add");
+
+        rightPane.add(addPartBtn, 0, 2);
+
+        TableView<Part> partTableView2 = new TableView<>(partsList);
+        partTableView2.setMinSize(380, 110);
+        partTableView2.setMaxSize(425, 128);
+
+
+        TableColumn<Part, String> partID = new TableColumn<>("Part ID");
+        partID.setCellValueFactory(new PropertyValueFactory<>("id"));
+        partTableView2.getColumns().add(partID);
+
+        TableColumn<Part, String> partName = new TableColumn<>("Part Name");
+        partName.setCellValueFactory(new PropertyValueFactory<>("name"));
+        partTableView2.getColumns().add(partName);
+
+        TableColumn<Part, String> partInventory = new TableColumn<>("Inventory Level");
+        partInventory.setCellValueFactory(new PropertyValueFactory<>("stock"));
+        partTableView2.getColumns().add(partInventory);
+
+        TableColumn<Part, Double> partPrice = new TableColumn<>("Price/Cost per Unit");
+        partPrice.setCellValueFactory(new PropertyValueFactory<>("price"));
+        partPrice.setCellFactory(formatCurrencyCellFactoryPart());
+        partTableView2.getColumns().add(partPrice);
+        rightPane.add(partTableView2, 0, 3);
+
+        addPartBtn.setOnAction(action -> {
+            Part newPart = partTableView1.getSelectionModel().getSelectedItem();
+//            partsList.add(newPart);
+            modProd.addAssociatedPart(newPart);
+            partTableView2.setItems(partsList);
+            partTableView2.refresh();
+        });
+
+        Button delPartBtn = new Button("Delete");
+        delPartBtn.setOnAction(action -> {
+            Part newPart = partTableView2.getSelectionModel().getSelectedItem();
+            partsList.remove(newPart);
+            modProd.deleteAssociatedPart(newPart);
+            partTableView2.setItems(partsList);
+            partTableView2.refresh();
+        });
+        rightPane.add(delPartBtn, 0, 4);
+
+        GridPane btnGrid = new GridPane();
+        Pane s1 = new Pane();
+        s1.setPrefWidth(50);
+        btnGrid.add(s1, 0, 0);
+
+        Button modifyProductBtn = new Button("Save");
+        modifyProductBtn.setOnMouseClicked(mouseEvent -> {
+            _fullInventory.updateProduct(_fullInventory.getAllProducts().indexOf(_fullInventory.lookupProduct(modProd.getId())), modProd);
+//                    .addProduct(new Product(
+//                    getNextProductId(),
+            modProd.setName(nameEntry.getText());
+            modProd.setPrice(Double.parseDouble(pcEntry.getText()));
+            modProd.setStock(Integer.parseInt(invEntry.getText()));
+            modProd.setMin(Integer.parseInt(minEntry.getText()));
+            modProd.setMax(Integer.parseInt(maxEntry.getText()));
+//            ));
+            _displayedInventory = _fullInventory;
+            modifyProductStage.close();
+        });
+
+        btnGrid.add(modifyProductBtn, 1, 0);
+
+        Pane s2 = new Pane();
+        s2.setPrefWidth(50);
+        btnGrid.add(s2, 2, 0);
+
+        Button cancelBtn = new Button("Cancel");
+        cancelBtn.setOnMouseClicked(mouseEvent -> modifyProductStage.close());
+        btnGrid.add(cancelBtn, 3, 0);
+
+        rightPane.add(btnGrid, 0, 5);
+
+        root.add(rightPane, 1,0, 1, 4);
 
         return scene;
     }
@@ -719,6 +1218,16 @@ public class Main extends Application {
                         .getAllParts()
                         .stream()
                         .mapToInt(Part::getId)
+                        .max()
+                        .orElse(0);
+    }
+
+    private static int getNextProductId() {
+        return 1 +
+                _fullInventory
+                        .getAllProducts()
+                        .stream()
+                        .mapToInt(Product::getId)
                         .max()
                         .orElse(0);
     }

@@ -49,7 +49,7 @@ public class Inventory {
     }
 
     public ObservableList<Part> lookupPart(String partName) {
-        ObservableList<Part> retval = FXCollections.emptyObservableList();
+        ObservableList<Part> retval = FXCollections.observableList(new ArrayList<>());
         _allParts.forEach((p) -> {
             if (p.getName().equals(partName)) {
                 retval.add(p);
@@ -59,7 +59,7 @@ public class Inventory {
     }
 
     public ObservableList<Product> lookupProduct(String productName) {
-        ObservableList<Product> retval = FXCollections.emptyObservableList();
+        ObservableList<Product> retval = FXCollections.observableList(new ArrayList<>());
         _allProducts.forEach((p) -> {
             if (p.getName().equals(productName)) {
                 retval.add(p);
