@@ -772,8 +772,8 @@ public class Main extends Application {
 
         GridPane topGrid = new GridPane();
 
-        leftPane.setGridLinesVisible(true);
-        topGrid.setGridLinesVisible(true);
+//        leftPane.setGridLinesVisible(true);
+//        topGrid.setGridLinesVisible(true);
 
         Text addProductText = new Text("Add Product");
         addProductText.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, 14));
@@ -783,10 +783,11 @@ public class Main extends Application {
 
         leftPane.add(topGrid, 0, 0);
 
+        final int gridSpacing = 50;
+
         GridPane idGrid = new GridPane();
         Text idLabel = new Text("ID");
-        idLabel.minWidth(100);
-        idLabel.setTextAlignment(TextAlignment.CENTER);
+        idGrid.setHgap(gridSpacing - idLabel.getLayoutBounds().getWidth());
         TextField idEntry = new TextField();
         idEntry.setPromptText("Auto Gen - Disabled");
         idEntry.setDisable(true);
@@ -797,8 +798,7 @@ public class Main extends Application {
 
         GridPane nameGrid = new GridPane();
         Text nameLabel = new Text("Name");
-        nameLabel.minWidth(100);
-        nameLabel.setTextAlignment(TextAlignment.CENTER);
+        nameGrid.setHgap(gridSpacing - nameLabel.getLayoutBounds().getWidth());
         TextField nameEntry = new TextField();
         nameEntry.setPromptText("Product Name");
         nameGrid.add(nameLabel, 0, 0);
@@ -807,8 +807,7 @@ public class Main extends Application {
 
         GridPane invGrid = new GridPane();
         Text invLabel = new Text("Inv");
-        invLabel.minWidth(100);
-        invLabel.setTextAlignment(TextAlignment.CENTER);
+        invGrid.setHgap(gridSpacing - invLabel.getLayoutBounds().getWidth());
         TextField invEntry = new TextField();
         invEntry.setPromptText("Inv");
         invGrid.add(invLabel, 0, 0);
@@ -816,9 +815,8 @@ public class Main extends Application {
         leftPane.add(invGrid, 0, 3);
 
         GridPane pcGrid = new GridPane();
-        Text pcLabel = new Text("Price/Cost");
-        pcLabel.minWidth(100);
-        pcLabel.setTextAlignment(TextAlignment.CENTER);
+        Text pcLabel = new Text("Price");
+        pcGrid.setHgap(gridSpacing - pcLabel.getLayoutBounds().getWidth());
         TextField pcEntry = new TextField();
         pcEntry.setPromptText("Price");
         pcGrid.add(pcLabel, 0, 0);
@@ -826,17 +824,14 @@ public class Main extends Application {
         leftPane.add(pcGrid, 0, 4);
 
         GridPane minmaxGrid = new GridPane();
+        minmaxGrid.setHgap(27);
         Text maxLabel = new Text("Max");
-        maxLabel.minWidth(100);
-        maxLabel.setTextAlignment(TextAlignment.CENTER);
         TextField maxEntry = new TextField();
         maxEntry.setPromptText("Max");
         minmaxGrid.add(maxLabel, 0, 0);
         minmaxGrid.add(maxEntry, 1, 0);
 
         Text minLabel = new Text("Min");
-        minLabel.minWidth(100);
-        minLabel.setTextAlignment(TextAlignment.CENTER);
         TextField minEntry = new TextField();
         minEntry.setPromptText("Min");
         minmaxGrid.add(minLabel, 2, 0);
@@ -849,8 +844,10 @@ public class Main extends Application {
         ObservableList<Part> partsList = FXCollections.observableArrayList();
 
         GridPane rightPane = new GridPane();
+        rightPane.setVgap(10);
 
         GridPane partSearch = new GridPane();
+        partSearch.setHgap(15);
         Button searchBtn = new Button("Search");
         partSearch.add(searchBtn, 0, 0);
 
@@ -936,7 +933,7 @@ public class Main extends Application {
         GridPane btnGrid = new GridPane();
         Pane s1 = new Pane();
         s1.setPrefWidth(50);
-        btnGrid.add(s1, 0, 0);
+//        btnGrid.add(s1, 0, 0);
 
         Button addProductBtn = new Button("Save");
         addProductBtn.setOnMouseClicked(mouseEvent -> {
@@ -955,15 +952,15 @@ public class Main extends Application {
             addProductStage.close();
         });
 
-        btnGrid.add(addProductBtn, 1, 0);
+        btnGrid.add(addProductBtn, 0, 0);
 
         Pane s2 = new Pane();
         s2.setPrefWidth(50);
-        btnGrid.add(s2, 2, 0);
+        btnGrid.add(s2, 1, 0);
 
         Button cancelBtn = new Button("Cancel");
         cancelBtn.setOnMouseClicked(mouseEvent -> addProductStage.close());
-        btnGrid.add(cancelBtn, 3, 0);
+        btnGrid.add(cancelBtn, 2, 0);
 
         rightPane.add(btnGrid, 0, 5);
 
@@ -995,8 +992,8 @@ public class Main extends Application {
 
         GridPane topGrid = new GridPane();
 
-        leftPane.setGridLinesVisible(true);
-        topGrid.setGridLinesVisible(true);
+//        leftPane.setGridLinesVisible(true);
+//        topGrid.setGridLinesVisible(true);
 
         Text modifyProductText = new Text("Modify Product");
         modifyProductText.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, 14));
@@ -1006,10 +1003,11 @@ public class Main extends Application {
 
         leftPane.add(topGrid, 0, 0);
 
+        final int gridSpacing = 50;
+
         GridPane idGrid = new GridPane();
         Text idLabel = new Text("ID");
-        idLabel.minWidth(100);
-        idLabel.setTextAlignment(TextAlignment.CENTER);
+        idGrid.setHgap(gridSpacing - idLabel.getLayoutBounds().getWidth());
         TextField idEntry = new TextField();
         idEntry.setPromptText("Auto Gen - Disabled");
         idEntry.setText(Integer.toString(modProd.getId()));
@@ -1021,8 +1019,7 @@ public class Main extends Application {
 
         GridPane nameGrid = new GridPane();
         Text nameLabel = new Text("Name");
-        nameLabel.minWidth(100);
-        nameLabel.setTextAlignment(TextAlignment.CENTER);
+        nameGrid.setHgap(gridSpacing - nameLabel.getLayoutBounds().getWidth());
         TextField nameEntry = new TextField(modProd.getName());
         nameEntry.setPromptText("Product Name");
         nameGrid.add(nameLabel, 0, 0);
@@ -1031,8 +1028,7 @@ public class Main extends Application {
 
         GridPane invGrid = new GridPane();
         Text invLabel = new Text("Inv");
-        invLabel.minWidth(100);
-        invLabel.setTextAlignment(TextAlignment.CENTER);
+        invGrid.setHgap(gridSpacing - invLabel.getLayoutBounds().getWidth());
         TextField invEntry = new TextField(Integer.toString(modProd.getStock()));
         invEntry.setPromptText("Inv");
         invGrid.add(invLabel, 0, 0);
@@ -1040,9 +1036,8 @@ public class Main extends Application {
         leftPane.add(invGrid, 0, 3);
 
         GridPane pcGrid = new GridPane();
-        Text pcLabel = new Text("Price/Cost");
-        pcLabel.minWidth(100);
-        pcLabel.setTextAlignment(TextAlignment.CENTER);
+        Text pcLabel = new Text("Price");
+        pcGrid.setHgap(gridSpacing - pcLabel.getLayoutBounds().getWidth());
         TextField pcEntry = new TextField(Double.toString(modProd.getPrice()));
         pcEntry.setPromptText("Price");
         pcGrid.add(pcLabel, 0, 0);
@@ -1050,6 +1045,7 @@ public class Main extends Application {
         leftPane.add(pcGrid, 0, 4);
 
         GridPane minmaxGrid = new GridPane();
+        minmaxGrid.setHgap(27);
         Text maxLabel = new Text("Max");
         maxLabel.minWidth(100);
         maxLabel.setTextAlignment(TextAlignment.CENTER);
@@ -1073,6 +1069,7 @@ public class Main extends Application {
         ObservableList<Part> partsList = modProd.getAllAssociatedParts();
 
         GridPane rightPane = new GridPane();
+        rightPane.setVgap(10);
 
         GridPane partSearch = new GridPane();
         Button searchBtn = new Button("Search");
@@ -1164,7 +1161,7 @@ public class Main extends Application {
         GridPane btnGrid = new GridPane();
         Pane s1 = new Pane();
         s1.setPrefWidth(50);
-        btnGrid.add(s1, 0, 0);
+//        btnGrid.add(s1, 0, 0);
 
         Button modifyProductBtn = new Button("Save");
         modifyProductBtn.setOnMouseClicked(mouseEvent -> {
@@ -1181,15 +1178,15 @@ public class Main extends Application {
             modifyProductStage.close();
         });
 
-        btnGrid.add(modifyProductBtn, 1, 0);
+        btnGrid.add(modifyProductBtn, 0, 0);
 
         Pane s2 = new Pane();
         s2.setPrefWidth(50);
-        btnGrid.add(s2, 2, 0);
+        btnGrid.add(s2, 1, 0);
 
         Button cancelBtn = new Button("Cancel");
         cancelBtn.setOnMouseClicked(mouseEvent -> modifyProductStage.close());
-        btnGrid.add(cancelBtn, 3, 0);
+        btnGrid.add(cancelBtn, 2, 0);
 
         rightPane.add(btnGrid, 0, 5);
 
