@@ -361,8 +361,8 @@ public class Main extends Application {
 
         GridPane topGrid = new GridPane();
 
-        root.setGridLinesVisible(true);
-        topGrid.setGridLinesVisible(true);
+//        root.setGridLinesVisible(true);
+//        topGrid.setGridLinesVisible(true);
 
         Text addPartText = new Text("Add Part");
         addPartText.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, 14));
@@ -381,14 +381,15 @@ public class Main extends Application {
         topGrid.add(rb1, 1, 0);
         topGrid.add(rb2, 2, 0);
 
-        topGrid.setHgap(10);
+        topGrid.setHgap(15);
 
         root.add(topGrid, 0, 0);
 
+        final int gridSpacing = 100;
+
         GridPane idGrid = new GridPane();
         Text idLabel = new Text("ID");
-        idLabel.minWidth(100);
-        idLabel.setTextAlignment(TextAlignment.CENTER);
+        idGrid.setHgap(gridSpacing - idLabel.getLayoutBounds().getWidth());
         TextField idEntry = new TextField();
         idEntry.setPromptText("Auto Gen - Disabled");
         idEntry.setDisable(true);
@@ -399,8 +400,7 @@ public class Main extends Application {
 
         GridPane nameGrid = new GridPane();
         Text nameLabel = new Text("Name");
-        nameLabel.minWidth(100);
-        nameLabel.setTextAlignment(TextAlignment.CENTER);
+        nameGrid.setHgap(gridSpacing - nameLabel.getLayoutBounds().getWidth());
         TextField nameEntry = new TextField();
         nameEntry.setPromptText("Part Name");
         nameGrid.add(nameLabel, 0, 0);
@@ -409,8 +409,7 @@ public class Main extends Application {
 
         GridPane invGrid = new GridPane();
         Text invLabel = new Text("Inv");
-        invLabel.minWidth(100);
-        invLabel.setTextAlignment(TextAlignment.CENTER);
+        invGrid.setHgap(gridSpacing - invLabel.getLayoutBounds().getWidth());
         TextField invEntry = new TextField();
         invEntry.setPromptText("Inv");
         invGrid.add(invLabel, 0, 0);
@@ -419,8 +418,7 @@ public class Main extends Application {
 
         GridPane pcGrid = new GridPane();
         Text pcLabel = new Text("Price/Cost");
-        pcLabel.minWidth(100);
-        pcLabel.setTextAlignment(TextAlignment.CENTER);
+        pcGrid.setHgap(gridSpacing - pcLabel.getLayoutBounds().getWidth());
         TextField pcEntry = new TextField();
         pcEntry.setPromptText("Price/Cost");
         pcGrid.add(pcLabel, 0, 0);
@@ -428,17 +426,14 @@ public class Main extends Application {
         root.add(pcGrid, 0, 4);
 
         GridPane minmaxGrid = new GridPane();
+        minmaxGrid.setHgap(25);
         Text maxLabel = new Text("Max");
-        maxLabel.minWidth(100);
-        maxLabel.setTextAlignment(TextAlignment.CENTER);
         TextField maxEntry = new TextField();
         maxEntry.setPromptText("Max");
         minmaxGrid.add(maxLabel, 0, 0);
         minmaxGrid.add(maxEntry, 1, 0);
 
         Text minLabel = new Text("Min");
-        minLabel.minWidth(100);
-        minLabel.setTextAlignment(TextAlignment.CENTER);
         TextField minEntry = new TextField();
         minEntry.setPromptText("Min");
         minmaxGrid.add(minLabel, 2, 0);
@@ -448,8 +443,7 @@ public class Main extends Application {
 
         GridPane machIDGrid = new GridPane();
         Text machIDLabel = new Text("Machine ID");
-        machIDLabel.minWidth(100);
-        machIDLabel.setTextAlignment(TextAlignment.CENTER);
+        machIDGrid.setHgap(gridSpacing - machIDLabel.getLayoutBounds().getWidth());
         TextField machIDEntry = new TextField();
         machIDEntry.setPromptText("Mach ID");
         machIDGrid.add(machIDLabel, 0, 0);
@@ -457,8 +451,7 @@ public class Main extends Application {
 
         GridPane compNameGrid = new GridPane();
         Text compNameLabel = new Text("Company Name");
-        compNameLabel.minWidth(100);
-        compNameLabel.setTextAlignment(TextAlignment.CENTER);
+        compNameGrid.setHgap(gridSpacing - compNameLabel.getLayoutBounds().getWidth());
         TextField compNameEntry = new TextField();
         compNameEntry.setPromptText("Comp Nm");
         compNameGrid.add(compNameLabel, 0, 0);
@@ -566,8 +559,8 @@ public class Main extends Application {
 
         GridPane topGrid = new GridPane();
 
-        root.setGridLinesVisible(true);
-        topGrid.setGridLinesVisible(true);
+//        root.setGridLinesVisible(true);
+//        topGrid.setGridLinesVisible(true);
 
         Text modifyPartText = new Text("Modify Part");
         modifyPartText.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, 14));
@@ -591,14 +584,15 @@ public class Main extends Application {
         topGrid.add(rb1, 1, 0);
         topGrid.add(rb2, 2, 0);
 
-        topGrid.setHgap(10);
+        topGrid.setHgap(15);
 
         root.add(topGrid, 0, 0);
 
+        final int gridSpacing = 100;
+
         GridPane idGrid = new GridPane();
         Text idLabel = new Text("ID");
-        idLabel.minWidth(100);
-        idLabel.setTextAlignment(TextAlignment.CENTER);
+        idGrid.setHgap(gridSpacing - idLabel.getLayoutBounds().getWidth());
         TextField idEntry = new TextField((String.valueOf(modPart.getId())));
         idEntry.setDisable(true);
         idEntry.setEditable(false);
@@ -608,8 +602,7 @@ public class Main extends Application {
 
         GridPane nameGrid = new GridPane();
         Text nameLabel = new Text("Name");
-        nameLabel.minWidth(100);
-        nameLabel.setTextAlignment(TextAlignment.CENTER);
+        nameGrid.setHgap(gridSpacing - nameLabel.getLayoutBounds().getWidth());
         TextField nameEntry = new TextField(modPart.getName());
         nameGrid.add(nameLabel, 0, 0);
         nameGrid.add(nameEntry, 1, 0);
@@ -617,8 +610,7 @@ public class Main extends Application {
 
         GridPane invGrid = new GridPane();
         Text invLabel = new Text("Inv");
-        invLabel.minWidth(100);
-        invLabel.setTextAlignment(TextAlignment.CENTER);
+        invGrid.setHgap(gridSpacing - invLabel.getLayoutBounds().getWidth());
         TextField invEntry = new TextField(String.valueOf(modPart.getStock()));
         invGrid.add(invLabel, 0, 0);
         invGrid.add(invEntry, 1, 0);
@@ -626,24 +618,20 @@ public class Main extends Application {
 
         GridPane pcGrid = new GridPane();
         Text pcLabel = new Text("Price/Cost");
-        pcLabel.minWidth(100);
-        pcLabel.setTextAlignment(TextAlignment.CENTER);
+        pcGrid.setHgap(gridSpacing - pcLabel.getLayoutBounds().getWidth());
         TextField pcEntry = new TextField(String.valueOf(modPart.getPrice()));
         pcGrid.add(pcLabel, 0, 0);
         pcGrid.add(pcEntry, 1, 0);
         root.add(pcGrid, 0, 4);
 
         GridPane minmaxGrid = new GridPane();
+        minmaxGrid.setHgap(25);
         Text maxLabel = new Text("Max");
-        maxLabel.minWidth(100);
-        maxLabel.setTextAlignment(TextAlignment.CENTER);
         TextField maxEntry = new TextField(String.valueOf(modPart.getMax()));
         minmaxGrid.add(maxLabel, 0, 0);
         minmaxGrid.add(maxEntry, 1, 0);
 
         Text minLabel = new Text("Min");
-        minLabel.minWidth(100);
-        minLabel.setTextAlignment(TextAlignment.CENTER);
         TextField minEntry = new TextField(String.valueOf(modPart.getMin()));
         minmaxGrid.add(minLabel, 2, 0);
         minmaxGrid.add(minEntry, 3, 0);
@@ -652,8 +640,7 @@ public class Main extends Application {
 
         GridPane machIDGrid = new GridPane();
         Text machIDLabel = new Text("Machine ID");
-        machIDLabel.minWidth(100);
-        machIDLabel.setTextAlignment(TextAlignment.CENTER);
+        machIDGrid.setHgap(gridSpacing - machIDLabel.getLayoutBounds().getWidth());
         AtomicReference<TextField> machIDEntry = new AtomicReference<>();
         machIDEntry.set(new TextField());
         if(dispIn.get() != null) {
@@ -664,8 +651,7 @@ public class Main extends Application {
 
         GridPane compNameGrid = new GridPane();
         Text compNameLabel = new Text("Company Name");
-        compNameLabel.minWidth(100);
-        compNameLabel.setTextAlignment(TextAlignment.CENTER);
+        compNameGrid.setHgap(gridSpacing - compNameLabel.getLayoutBounds().getWidth());
         AtomicReference<TextField> compNameEntry = new AtomicReference<>();
         compNameEntry.set(new TextField());
         if(dispOut.get() != null) {
