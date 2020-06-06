@@ -15,7 +15,6 @@ public abstract class Part {
             int stock,
             int min,
             int max) {
-//        this(id, name, price, stock, min, max);
         _id = id;
         _name = name;
         _price = price;

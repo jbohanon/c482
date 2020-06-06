@@ -9,7 +9,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.control.skin.TableViewSkin;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -19,6 +18,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -28,6 +28,7 @@ public class Main extends Application {
     private static final Inventory _fullInventory = new Inventory();
     private static Inventory _displayedInventory = new Inventory();
 
+    private static Stage mainStage;
     private static Stage addPartStage;
     private static Stage modifyPartStage;
     private static Stage addProductStage;
@@ -45,37 +46,33 @@ public class Main extends Application {
     }
 
     @Override
-    public void start(@NotNull Stage primaryStage) throws Exception {
+    public void start(@NotNull Stage primaryStage) {
 
+        mainStage = primaryStage;
         preLoadInventory();
-//        Parent root = FXMLLoader.load(getClass().getResource("main.fxml"));
-        primaryStage.setResizable(false);
-        Scene mainScreen = mainScreenDef(primaryStage, new BorderPane());
-        primaryStage.setScene(mainScreen);
-        primaryStage.show();
+        mainStage.setResizable(false);
+        Scene mainScreen = mainScreenDef(new BorderPane());
+        mainStage.setScene(mainScreen);
+        mainStage.show();
     }
 
     // Main Screen Def
     private @NotNull
-    Scene mainScreenDef(Stage primaryStage, BorderPane root) throws Exception {
+    Scene mainScreenDef(BorderPane root) {
 
         Scene scene = new Scene(root, 890, 350);
 
-        try {
-            HBox titlePane = mainTitleHbox();
-            root.setTop(titlePane);
+        HBox titlePane = mainTitleHbox();
+        root.setTop(titlePane);
 
-            GridPane partsGrid = mainPartsGrid();
-            root.setLeft(partsGrid);
+        GridPane partsGrid = mainPartsGrid();
+        root.setLeft(partsGrid);
 
-            GridPane productsGrid = mainProductsGrid();
-            root.setRight(productsGrid);
+        GridPane productsGrid = mainProductsGrid();
+        root.setRight(productsGrid);
 
-            HBox exitBtn = mainExitBtn();
-            root.setBottom(exitBtn);
-        } catch (Exception e) {
-            throw e;
-        }
+        HBox exitBtn = mainExitBtn();
+        root.setBottom(exitBtn);
         return scene;
     }
 
@@ -103,9 +100,7 @@ public class Main extends Application {
 
         Button exitBtn = new Button("Exit");
         exitBtn.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, 14));
-        exitBtn.setOnMouseClicked(mouseEvent -> {
-            Platform.exit();
-        });
+        exitBtn.setOnMouseClicked(mouseEvent -> Platform.exit());
 
         hbox.getChildren().add(exitBtn);
 
@@ -115,8 +110,6 @@ public class Main extends Application {
     private @NotNull
     GridPane mainPartsGrid() {
         GridPane grid = new GridPane();
-
-//        grid.setGridLinesVisible(true);
 
         grid.setMaxWidth(Control.USE_PREF_SIZE);
         grid.setHgap(5);
@@ -142,7 +135,6 @@ public class Main extends Application {
         grid.add(searchArea, 3, 0, 1, 1);
 
         TableView<Part> partTableView = new TableView<>(_displayedInventory.getAllParts());
-//        TableViewSkin skin = new TableViewSkin(partTableView);
         partTableView.setMinSize(380, 110);
         partTableView.setMaxSize(425, 128);
 
@@ -204,10 +196,12 @@ public class Main extends Application {
         Button delBtn = new Button("Delete");
         delBtn.setPrefWidth(60);
         delBtn.setOnMouseClicked(mouseEvent -> {
-            _fullInventory.deletePart(partTableView.getSelectionModel().getSelectedItem());
-            _displayedInventory = _fullInventory;
-            partTableView.setItems(_displayedInventory.getAllParts());
-            partTableView.refresh();
+            if(confirmDialog(null)) {
+                _fullInventory.deletePart(partTableView.getSelectionModel().getSelectedItem());
+                _displayedInventory = _fullInventory;
+                partTableView.setItems(_displayedInventory.getAllParts());
+                partTableView.refresh();
+            }
         });
         grid.add(delBtn, 3, 2, 1, 1);
 
@@ -217,8 +211,6 @@ public class Main extends Application {
     private @NotNull
     GridPane mainProductsGrid() {
         GridPane grid = new GridPane();
-
-//        grid.setGridLinesVisible(true);
 
         grid.setMaxWidth(Control.USE_PREF_SIZE);
         grid.setHgap(5);
@@ -305,10 +297,12 @@ public class Main extends Application {
         Button delBtn = new Button("Delete");
         delBtn.setPrefWidth(60);
         delBtn.setOnMouseClicked(mouseEvent -> {
-            _fullInventory.deleteProduct(productTableView.getSelectionModel().getSelectedItem());
-            _displayedInventory = _fullInventory;
-            productTableView.setItems(_displayedInventory.getAllProducts());
-            productTableView.refresh();
+            if(confirmDialog(null)) {
+                _fullInventory.deleteProduct(productTableView.getSelectionModel().getSelectedItem());
+                _displayedInventory = _fullInventory;
+                productTableView.setItems(_displayedInventory.getAllProducts());
+                productTableView.refresh();
+            }
         });
         grid.add(delBtn, 3, 2, 1, 1);
 
@@ -344,11 +338,10 @@ public class Main extends Application {
     // Add Part Screen Def
     private void addPartStageDef() {
         addPartStage = new Stage();
-        addPartStage.setAlwaysOnTop(true);
-//        addPartStage.initModality(Modality.WINDOW_MODAL);
         addPartStage.setResizable(false);
         Scene addPartScreen = addPartScreenDef(new GridPane());
         addPartStage.setScene(addPartScreen);
+        mainStage.hide();
         addPartStage.show();
     }
 
@@ -360,9 +353,6 @@ public class Main extends Application {
         root.setVgap(10);
 
         GridPane topGrid = new GridPane();
-
-//        root.setGridLinesVisible(true);
-//        topGrid.setGridLinesVisible(true);
 
         Text addPartText = new Text("Add Part");
         addPartText.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, 14));
@@ -462,7 +452,7 @@ public class Main extends Application {
         s1.setPrefWidth(50);
         btnGrid.add(s1, 0, 0);
 
-        Button addInBtn = new Button("Add");
+        Button addInBtn = new Button("Save");
         addInBtn.setOnMouseClicked(mouseEvent -> {
             _fullInventory.addPart(new InHouse(
                     getNextPartId(),
@@ -475,9 +465,10 @@ public class Main extends Application {
             ));
             _displayedInventory = _fullInventory;
             addPartStage.close();
+            mainStage.show();
         });
 
-        Button addOutBtn = new Button("Add");
+        Button addOutBtn = new Button("Save");
         addOutBtn.setOnMouseClicked(mouseEvent -> {
             _fullInventory.addPart(new Outsourced(
                     getNextPartId(),
@@ -490,6 +481,7 @@ public class Main extends Application {
             ));
             _displayedInventory = _fullInventory;
             addPartStage.close();
+            mainStage.show();
         });
 
         btnGrid.add(addInBtn, 1, 0);
@@ -499,7 +491,7 @@ public class Main extends Application {
         btnGrid.add(s2, 2, 0);
 
         Button cancelBtn = new Button("Cancel");
-        cancelBtn.setOnMouseClicked(mouseEvent -> addPartStage.close());
+        cancelBtn.setOnMouseClicked(mouseEvent -> confirmDialog(addPartStage));
         btnGrid.add(cancelBtn, 3, 0);
 
         AtomicBoolean altered = new AtomicBoolean(false);
@@ -530,8 +522,6 @@ public class Main extends Application {
     // Modify Part Screen Def
     private void modifyPartStageDef(Part modPart) {
         modifyPartStage = new Stage();
-        modifyPartStage.setAlwaysOnTop(true);
-//        modifyPartStage.initModality(Modality.WINDOW_MODAL);
         modifyPartStage.setResizable(false);
         Scene modifyPartScreen;
         try {
@@ -540,11 +530,12 @@ public class Main extends Application {
             return;
         }
         modifyPartStage.setScene(modifyPartScreen);
+        mainStage.hide();
         modifyPartStage.show();
     }
 
     private @NotNull
-    Scene modifyPartScreenDef(GridPane root, Part modPart) throws Exception {
+    Scene modifyPartScreenDef(GridPane root, Part modPart) {
         AtomicReference<InHouse> dispIn = new AtomicReference<>();
         AtomicReference<Outsourced> dispOut = new AtomicReference<>();
         if(modPart.getClass() == InHouse.class) {
@@ -558,9 +549,6 @@ public class Main extends Application {
         root.setVgap(10);
 
         GridPane topGrid = new GridPane();
-
-//        root.setGridLinesVisible(true);
-//        topGrid.setGridLinesVisible(true);
 
         Text modifyPartText = new Text("Modify Part");
         modifyPartText.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, 14));
@@ -678,6 +666,7 @@ public class Main extends Application {
             ));
             _displayedInventory = _fullInventory;
             modifyPartStage.close();
+            mainStage.show();
         });
 
         Button modOutBtn = new Button("Save");
@@ -693,6 +682,7 @@ public class Main extends Application {
             ));
             _displayedInventory = _fullInventory;
             modifyPartStage.close();
+            mainStage.show();
         });
 
         btnGrid.add(modInBtn, 1, 0);
@@ -702,7 +692,8 @@ public class Main extends Application {
         btnGrid.add(s2, 2, 0);
 
         Button cancelBtn = new Button("Cancel");
-        cancelBtn.setOnMouseClicked(mouseEvent -> modifyPartStage.close());
+        cancelBtn.setOnMouseClicked(mouseEvent -> confirmDialog(modifyPartStage));
+
         btnGrid.add(cancelBtn, 3, 0);
 
         if(dispIn.get() != null) {
@@ -753,11 +744,10 @@ public class Main extends Application {
     // Add Product Screen Def
     private void addProductStageDef() {
         addProductStage = new Stage();
-        addProductStage.setAlwaysOnTop(true);
-//        addPartStage.initModality(Modality.WINDOW_MODAL);
         addProductStage.setResizable(false);
         Scene addProductScreen = addProductScreenDef(new GridPane());
         addProductStage.setScene(addProductScreen);
+        mainStage.hide();
         addProductStage.show();
     }
 
@@ -771,9 +761,6 @@ public class Main extends Application {
         leftPane.setVgap(10);
 
         GridPane topGrid = new GridPane();
-
-//        leftPane.setGridLinesVisible(true);
-//        topGrid.setGridLinesVisible(true);
 
         Text addProductText = new Text("Add Product");
         addProductText.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, 14));
@@ -917,26 +904,35 @@ public class Main extends Application {
         rightPane.add(partTableView2, 0, 3);
 
         addPartBtn.setOnAction(action -> {
-            partsList.add(partTableView1.getSelectionModel().getSelectedItem());
-            partTableView2.setItems(partsList);
-            partTableView2.refresh();
+            Part item = partTableView1.getSelectionModel().getSelectedItem();
+            if(!partsList.contains(item)) {
+                partsList.add(item);
+                partTableView2.setItems(partsList);
+                partTableView2.refresh();
+            }
         });
 
         Button delPartBtn = new Button("Delete");
         delPartBtn.setOnAction(action -> {
-            partsList.remove(partTableView2.getSelectionModel().getSelectedItem());
-            partTableView2.setItems(partsList);
-            partTableView2.refresh();
+            if(confirmDialog(null)) {
+                partsList.remove(partTableView2.getSelectionModel().getSelectedItem());
+                partTableView2.setItems(partsList);
+                partTableView2.refresh();
+            }
         });
         rightPane.add(delPartBtn, 0, 4);
 
         GridPane btnGrid = new GridPane();
-        Pane s1 = new Pane();
-        s1.setPrefWidth(50);
-//        btnGrid.add(s1, 0, 0);
 
         Button addProductBtn = new Button("Save");
         addProductBtn.setOnMouseClicked(mouseEvent -> {
+            if(partsList.isEmpty()) {
+                Dialog<String> errorDialog = new Dialog<>();
+                errorDialog.getDialogPane().setContentText("Please associate at least one part!");
+                errorDialog.getDialogPane().getButtonTypes().add(ButtonType.OK);
+                errorDialog.showAndWait();
+                return;
+            }
             Product newProd = new Product(
                     getNextProductId(),
                     nameEntry.getText(),
@@ -949,6 +945,7 @@ public class Main extends Application {
             }
             _fullInventory.addProduct(newProd);
             _displayedInventory = _fullInventory;
+            mainStage.show();
             addProductStage.close();
         });
 
@@ -959,7 +956,7 @@ public class Main extends Application {
         btnGrid.add(s2, 1, 0);
 
         Button cancelBtn = new Button("Cancel");
-        cancelBtn.setOnMouseClicked(mouseEvent -> addProductStage.close());
+        cancelBtn.setOnMouseClicked(mouseEvent -> confirmDialog(addProductStage));
         btnGrid.add(cancelBtn, 2, 0);
 
         rightPane.add(btnGrid, 0, 5);
@@ -973,11 +970,10 @@ public class Main extends Application {
     // Modify Product Screen Def
     private void modifyProductStageDef(Product modProd) {
         modifyProductStage = new Stage();
-        modifyProductStage.setAlwaysOnTop(true);
-//        modifyPartStage.initModality(Modality.WINDOW_MODAL);
         modifyProductStage.setResizable(false);
         Scene modifyProductScreen = modifyProductScreenDef(new GridPane(), modProd);
         modifyProductStage.setScene(modifyProductScreen);
+        mainStage.hide();
         modifyProductStage.show();
     }
 
@@ -991,9 +987,6 @@ public class Main extends Application {
         leftPane.setVgap(10);
 
         GridPane topGrid = new GridPane();
-
-//        leftPane.setGridLinesVisible(true);
-//        topGrid.setGridLinesVisible(true);
 
         Text modifyProductText = new Text("Modify Product");
         modifyProductText.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, 14));
@@ -1141,41 +1134,48 @@ public class Main extends Application {
         rightPane.add(partTableView2, 0, 3);
 
         addPartBtn.setOnAction(action -> {
-            Part newPart = partTableView1.getSelectionModel().getSelectedItem();
-//            partsList.add(newPart);
-            modProd.addAssociatedPart(newPart);
-            partTableView2.setItems(partsList);
-            partTableView2.refresh();
+            Part item = partTableView1.getSelectionModel().getSelectedItem();
+            if(!partsList.contains(item)) {
+                partsList.add(item);
+                partTableView2.setItems(partsList);
+                partTableView2.refresh();
+            }
         });
 
         Button delPartBtn = new Button("Delete");
         delPartBtn.setOnAction(action -> {
-            Part newPart = partTableView2.getSelectionModel().getSelectedItem();
-            partsList.remove(newPart);
-            modProd.deleteAssociatedPart(newPart);
-            partTableView2.setItems(partsList);
-            partTableView2.refresh();
+            if(confirmDialog(null)) {
+                Part newPart = partTableView2.getSelectionModel().getSelectedItem();
+                partsList.remove(newPart);
+                modProd.deleteAssociatedPart(newPart);
+                partTableView2.setItems(partsList);
+                partTableView2.refresh();
+            }
         });
         rightPane.add(delPartBtn, 0, 4);
 
         GridPane btnGrid = new GridPane();
         Pane s1 = new Pane();
         s1.setPrefWidth(50);
-//        btnGrid.add(s1, 0, 0);
 
         Button modifyProductBtn = new Button("Save");
         modifyProductBtn.setOnMouseClicked(mouseEvent -> {
+            if(partsList.isEmpty()) {
+                Dialog<String> errorDialog = new Dialog<>();
+                errorDialog.getDialogPane().setContentText("Please associate at least one part!");
+                errorDialog.getDialogPane().getButtonTypes().add(ButtonType.OK);
+                errorDialog.showAndWait();
+                return;
+            }
             _fullInventory.updateProduct(_fullInventory.getAllProducts().indexOf(_fullInventory.lookupProduct(modProd.getId())), modProd);
-//                    .addProduct(new Product(
-//                    getNextProductId(),
             modProd.setName(nameEntry.getText());
             modProd.setPrice(Double.parseDouble(pcEntry.getText()));
             modProd.setStock(Integer.parseInt(invEntry.getText()));
             modProd.setMin(Integer.parseInt(minEntry.getText()));
             modProd.setMax(Integer.parseInt(maxEntry.getText()));
-//            ));
             _displayedInventory = _fullInventory;
             modifyProductStage.close();
+            mainStage.show();
         });
 
         btnGrid.add(modifyProductBtn, 0, 0);
@@ -1185,7 +1185,7 @@ public class Main extends Application {
         btnGrid.add(s2, 1, 0);
 
         Button cancelBtn = new Button("Cancel");
-        cancelBtn.setOnMouseClicked(mouseEvent -> modifyProductStage.close());
+        cancelBtn.setOnMouseClicked(mouseEvent -> confirmDialog(modifyProductStage));
         btnGrid.add(cancelBtn, 2, 0);
 
         rightPane.add(btnGrid, 0, 5);
@@ -1193,6 +1193,23 @@ public class Main extends Application {
         root.add(rightPane, 1,0, 1, 4);
 
         return scene;
+    }
+
+    private Boolean confirmDialog(@Nullable Stage thisStage) {
+        AtomicReference<Boolean> retval = new AtomicReference<>();
+        retval.set(false);
+        Dialog<ButtonType> confirmDialog = new Dialog<>();
+        confirmDialog.getDialogPane().setContentText("Are you sure?");
+        confirmDialog.getDialogPane().getButtonTypes().add(ButtonType.YES);
+        confirmDialog.getDialogPane().getButtonTypes().add(ButtonType.NO);
+        confirmDialog.showAndWait().filter(resp -> resp == ButtonType.YES).ifPresent(a -> {
+            retval.set(true);
+            if(thisStage != null) {
+                thisStage.close();
+                mainStage.show();
+            }
+        });
+        return retval.get();
     }
 
     private static int getNextPartId() {

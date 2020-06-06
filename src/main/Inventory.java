@@ -36,12 +36,10 @@ public class Inventory {
     }
 
     public Product lookupProduct(int productId) {
-//        AtomicReference<main.Product> retval = new AtomicReference<>();
         final Product[] retval = new Product[1];
 
         _allProducts.forEach((p) -> {
             if (p.getId() == productId) {
-//                retval.set(p);
                 retval[0] = p;
             }
         });
