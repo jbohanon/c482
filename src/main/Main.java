@@ -17,8 +17,6 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.util.Callback;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -35,18 +33,34 @@ public class Main extends Application {
     private static Stage modifyProductStage;
 
     private static void preLoadInventory() {
-        _fullInventory.addPart(new Outsourced(1, "Part 1", 5, 5, 5, 300, "Joe's Hardware"));
-        _fullInventory.addPart(new Outsourced(2, "Part 2", 10, 25, 5, 200, "Jane's Supply"));
-        _fullInventory.addPart(new InHouse(3, "Part 3", 6.37, 12, 10, 50, 103));
-        _fullInventory.addPart(new InHouse(4, "Part 4", 0.12, 60, 20, 75, 105));
-        _fullInventory.addProduct(new Product(1, "Product 1", 12.99, 60, 20, 75));
-        _fullInventory.addProduct(new Product(2, "Product 2", 109.63, 5, 3, 10));
+        Part p1 = new Outsourced(1, "Part 1", 5, 5, 5, 300, "Joe's Hardware");
+        Part p2 = new Outsourced(2, "Prt 2", 10, 25, 5, 200, "Jane's Supply");
+        Part p3 = new InHouse(3, "P 3", 6.37, 12, 10, 50, 103);
+        Part p4 = new InHouse(4, "Try a Search", 0.12, 60, 20, 75, 105);
+
+        Product prod1 = new Product(1, "Product 1", 12.99, 60, 20, 75);
+        prod1.addAssociatedPart(p1);
+        prod1.addAssociatedPart(p4);
+
+        Product prod2 = new Product(2, "Prod 2", 109.63, 5, 3, 10);
+        prod2.addAssociatedPart(p1);
+        prod2.addAssociatedPart(p2);
+        prod2.addAssociatedPart(p3);
+        prod2.addAssociatedPart(p4);
+
+        _fullInventory.addPart(p1);
+        _fullInventory.addPart(p2);
+        _fullInventory.addPart(p3);
+        _fullInventory.addPart(p4);
+        _fullInventory.addProduct(prod1);
+        _fullInventory.addProduct(prod2);
+
 
         _displayedInventory = _fullInventory;
     }
 
     @Override
-    public void start(@NotNull Stage primaryStage) {
+    public void start(Stage primaryStage) {
 
         mainStage = primaryStage;
         preLoadInventory();
@@ -57,7 +71,7 @@ public class Main extends Application {
     }
 
     // Main Screen Def
-    private @NotNull
+    private
     Scene mainScreenDef(BorderPane root) {
 
         Scene scene = new Scene(root, 890, 350);
@@ -76,7 +90,7 @@ public class Main extends Application {
         return scene;
     }
 
-    private @NotNull
+    private
     HBox mainTitleHbox() {
         HBox hbox = new HBox();
 
@@ -91,7 +105,7 @@ public class Main extends Application {
         return hbox;
     }
 
-    private @NotNull
+    private
     HBox mainExitBtn() {
         HBox hbox = new HBox();
 
@@ -107,7 +121,7 @@ public class Main extends Application {
         return hbox;
     }
 
-    private @NotNull
+    private
     GridPane mainPartsGrid() {
         GridPane grid = new GridPane();
 
@@ -172,8 +186,12 @@ public class Main extends Application {
             _displayedInventory = new Inventory();
 
             tmpProd.forEach(product -> _displayedInventory.addProduct(product));
-            ObservableList<Part> tmpList = _fullInventory.lookupPart(searchText);
-            tmpList.forEach(part -> _displayedInventory.addPart(part));
+            ObservableList<Part> tmpList = _fullInventory.getAllParts();
+            tmpList.forEach(part -> {
+                if (part.getName().contains(searchText)) {
+                    _displayedInventory.addPart(part);
+                }
+            });
             partTableView.setItems(_displayedInventory.getAllParts());
             partTableView.refresh();
         });
@@ -208,7 +226,7 @@ public class Main extends Application {
         return grid;
     }
 
-    private @NotNull
+    private
     GridPane mainProductsGrid() {
         GridPane grid = new GridPane();
 
@@ -273,8 +291,12 @@ public class Main extends Application {
             _displayedInventory = new Inventory();
 
             tmpParts.forEach(part -> _displayedInventory.addPart(part));
-            ObservableList<Product> tmpList = _fullInventory.lookupProduct(searchText);
-            tmpList.forEach(product -> _displayedInventory.addProduct(product));
+            ObservableList<Product> tmpList = _fullInventory.getAllProducts();
+            tmpList.forEach(product -> {
+                if(product.getName().contains(searchText)) {
+                    _displayedInventory.addProduct(product);
+                }
+            });
             productTableView.setItems(_displayedInventory.getAllProducts());
             productTableView.refresh();
         });
@@ -310,7 +332,7 @@ public class Main extends Application {
     }
 
     private Callback<TableColumn<Part, Double>, TableCell<Part, Double>> formatCurrencyCellFactoryPart() {
-        return col -> new TableCell<>() {
+        return col -> new TableCell<Part, Double>() {
             @Override
             public void updateItem(final Double item, boolean empty) {
                 if (item != null) {
@@ -323,7 +345,7 @@ public class Main extends Application {
     }
 
     private Callback<TableColumn<Product, Double>, TableCell<Product, Double>> formatCurrencyCellFactoryProduct() {
-        return col -> new TableCell<>() {
+        return col -> new TableCell<Product, Double>() {
             @Override
             public void updateItem(final Double item, boolean empty) {
                 if (item != null) {
@@ -345,8 +367,7 @@ public class Main extends Application {
         addPartStage.show();
     }
 
-    private @NotNull
-    Scene addPartScreenDef(GridPane root) {
+    private Scene addPartScreenDef(GridPane root) {
         Scene scene = new Scene(root, 350, 500);
 
         root.setPadding(new Insets(20, 30, 20, 30));
@@ -452,9 +473,81 @@ public class Main extends Application {
         s1.setPrefWidth(50);
         btnGrid.add(s1, 0, 0);
 
-        Button addInBtn = new Button("Save");
-        addInBtn.setOnMouseClicked(mouseEvent -> {
-            _fullInventory.addPart(new InHouse(
+        Button saveBtn = new Button("Save");
+        saveBtn.setOnMouseClicked(mouseEvent -> {
+            if(nameEntry.getText().equals("")) {
+                okBtnDialog("Name field cannot be empty!");
+                return;
+            }
+            if (pcEntry.getText().equals("")) {
+                okBtnDialog("Price/Cost field cannot be empty!");
+                return;
+            }
+            try {
+                if(Double.parseDouble(pcEntry.getText()) <= 0) {
+                    throw new NumberFormatException();
+                }
+            } catch(NumberFormatException e) {
+                okBtnDialog("Price/Cost format is invalid!");
+                return;
+            }
+            if (invEntry.getText().equals("")) {
+                okBtnDialog("Inv field cannot be empty!");
+                return;
+            }
+            try {
+                if(Integer.parseInt(invEntry.getText()) < 1) {
+                    throw new NumberFormatException();
+                }
+            } catch(NumberFormatException e) {
+                okBtnDialog("Inv format is invalid! Must be integer > 0!");
+                return;
+            }
+            if (minEntry.getText().equals("")) {
+                okBtnDialog("Min field cannot be empty!");
+                return;
+            }
+            try {
+                if(Integer.parseInt(minEntry.getText()) < 1) {
+                    throw new NumberFormatException();
+                }
+            } catch(NumberFormatException e) {
+                okBtnDialog("Min format is invalid! Must be integer > 0!");
+                return;
+            }
+            if (maxEntry.getText().equals("")) {
+                okBtnDialog("Max field cannot be empty!");
+                return;
+            }
+            try {
+                if(Integer.parseInt(maxEntry.getText()) < 1) {
+                    throw new NumberFormatException();
+                }
+            } catch(NumberFormatException e) {
+                okBtnDialog("Max format is invalid! Must be integer > 0!");
+                return;
+            }
+            if(!(Integer.parseInt(maxEntry.getText()) > Integer.parseInt(invEntry.getText())
+                    && Integer.parseInt(invEntry.getText()) > Integer.parseInt(minEntry.getText()))) {
+                okBtnDialog("Max must be greater than Inv, and Inv must be greater than Min!");
+                return;
+            }
+
+            if(rb1.isSelected()) {
+
+                if (machIDEntry.getText().equals("")) {
+                    okBtnDialog("Machine ID field cannot be empty!");
+                    return;
+                }
+                try {
+                    if(Integer.parseInt(machIDEntry.getText()) < 1) {
+                        throw new NumberFormatException();
+                    }
+                } catch(NumberFormatException e) {
+                    okBtnDialog("Machine ID format is invalid! Must be integer > 0!");
+                    return;
+                }
+                _fullInventory.addPart(new InHouse(
                     getNextPartId(),
                     nameEntry.getText(),
                     Double.parseDouble(pcEntry.getText()),
@@ -463,28 +556,27 @@ public class Main extends Application {
                     Integer.parseInt(maxEntry.getText()),
                     Integer.parseInt(machIDEntry.getText())
             ));
+            } else {
+                if(compNameEntry.getText().equals("")) {
+                    okBtnDialog("Company Name field cannot be empty!");
+                    return;
+                }
+                _fullInventory.addPart(new Outsourced(
+                        getNextPartId(),
+                        nameEntry.getText(),
+                        Double.parseDouble(pcEntry.getText()),
+                        Integer.parseInt(invEntry.getText()),
+                        Integer.parseInt(minEntry.getText()),
+                        Integer.parseInt(maxEntry.getText()),
+                        compNameEntry.getText()
+                ));
+            }
             _displayedInventory = _fullInventory;
             addPartStage.close();
             mainStage.show();
         });
 
-        Button addOutBtn = new Button("Save");
-        addOutBtn.setOnMouseClicked(mouseEvent -> {
-            _fullInventory.addPart(new Outsourced(
-                    getNextPartId(),
-                    nameEntry.getText(),
-                    Double.parseDouble(pcEntry.getText()),
-                    Integer.parseInt(invEntry.getText()),
-                    Integer.parseInt(minEntry.getText()),
-                    Integer.parseInt(maxEntry.getText()),
-                    compNameEntry.getText()
-            ));
-            _displayedInventory = _fullInventory;
-            addPartStage.close();
-            mainStage.show();
-        });
-
-        btnGrid.add(addInBtn, 1, 0);
+        btnGrid.add(saveBtn, 1, 0);
 
         Pane s2 = new Pane();
         s2.setPrefWidth(50);
@@ -502,17 +594,13 @@ public class Main extends Application {
         rb1.setOnAction( action -> {
             if(altered.get()) {
                 root.getChildren().remove(compNameGrid);
-                btnGrid.getChildren().remove(addOutBtn);
             }
             root.add(machIDGrid, 0, 6);
-            btnGrid.add(addInBtn, 1, 0);
             altered.set(true);
         });
         rb2.setOnAction( action -> {
             root.getChildren().remove(machIDGrid);
-            btnGrid.getChildren().remove(addInBtn);
             root.add(compNameGrid, 0, 6);
-            btnGrid.add(addOutBtn, 1, 0);
             altered.set(true);
         });
 
@@ -534,8 +622,7 @@ public class Main extends Application {
         modifyPartStage.show();
     }
 
-    private @NotNull
-    Scene modifyPartScreenDef(GridPane root, Part modPart) {
+    private Scene modifyPartScreenDef(GridPane root, Part modPart) {
         AtomicReference<InHouse> dispIn = new AtomicReference<>();
         AtomicReference<Outsourced> dispOut = new AtomicReference<>();
         if(modPart.getClass() == InHouse.class) {
@@ -653,39 +740,110 @@ public class Main extends Application {
         s1.setPrefWidth(50);
         btnGrid.add(s1, 0, 0);
 
-        Button modInBtn = new Button("Save");
-        modInBtn.setOnMouseClicked(mouseEvent -> {
-            _fullInventory.updatePart(_fullInventory.getAllParts().indexOf(modPart), new InHouse(
-                    modPart.getId(),
-                    nameEntry.getText(),
-                    Double.parseDouble(pcEntry.getText()),
-                    Integer.parseInt(invEntry.getText()),
-                    Integer.parseInt(minEntry.getText()),
-                    Integer.parseInt(maxEntry.getText()),
-                    Integer.parseInt(machIDEntry.get().getText())
-            ));
+        Button modBtn = new Button("Save");
+        modBtn.setOnMouseClicked(mouseEvent -> {
+            if(nameEntry.getText().equals("")) {
+                okBtnDialog("Name field cannot be empty!");
+                return;
+            }
+            if (pcEntry.getText().equals("")) {
+                okBtnDialog("Price/Cost field cannot be empty!");
+                return;
+            }
+            try {
+                if(Double.parseDouble(pcEntry.getText()) <= 0) {
+                    throw new NumberFormatException();
+                }
+            } catch(NumberFormatException e) {
+                okBtnDialog("Price/Cost format is invalid!");
+                return;
+            }
+            if (invEntry.getText().equals("")) {
+                okBtnDialog("Inv field cannot be empty!");
+                return;
+            }
+            try {
+                if(Integer.parseInt(invEntry.getText()) < 1) {
+                    throw new NumberFormatException();
+                }
+            } catch(NumberFormatException e) {
+                okBtnDialog("Inv format is invalid! Must be integer > 0!");
+                return;
+            }
+            if (minEntry.getText().equals("")) {
+                okBtnDialog("Min field cannot be empty!");
+                return;
+            }
+            try {
+                if(Integer.parseInt(minEntry.getText()) < 1) {
+                    throw new NumberFormatException();
+                }
+            } catch(NumberFormatException e) {
+                okBtnDialog("Min format is invalid! Must be integer > 0!");
+                return;
+            }
+            if (maxEntry.getText().equals("")) {
+                okBtnDialog("Max field cannot be empty!");
+                return;
+            }
+            try {
+                if(Integer.parseInt(maxEntry.getText()) < 1) {
+                    throw new NumberFormatException();
+                }
+            } catch(NumberFormatException e) {
+                okBtnDialog("Max format is invalid! Must be integer > 0!");
+                return;
+            }
+            if(!(Integer.parseInt(maxEntry.getText()) > Integer.parseInt(invEntry.getText())
+                    && Integer.parseInt(invEntry.getText()) > Integer.parseInt(minEntry.getText()))) {
+                okBtnDialog("Max must be greater than Inv, and Inv must be greater than Min!");
+                return;
+            }
+            if(rb1.isSelected()) {
+
+                if (machIDEntry.get().getText().equals("")) {
+                    okBtnDialog("Machine ID field cannot be empty!");
+                    return;
+                }
+                try {
+                    if(Integer.parseInt(machIDEntry.get().getText()) < 1) {
+                        throw new NumberFormatException();
+                    }
+                } catch(NumberFormatException e) {
+                    okBtnDialog("Machine ID format is invalid! Must be integer > 0!");
+                    return;
+                }
+                _fullInventory.updatePart(_fullInventory.getAllParts().indexOf(modPart), new InHouse(
+                        modPart.getId(),
+                        nameEntry.getText(),
+                        Double.parseDouble(pcEntry.getText()),
+                        Integer.parseInt(invEntry.getText()),
+                        Integer.parseInt(minEntry.getText()),
+                        Integer.parseInt(maxEntry.getText()),
+                        Integer.parseInt(machIDEntry.get().getText())
+                ));
+            } else {
+                if(compNameEntry.get().getText().equals("")) {
+                    okBtnDialog("Company Name field cannot be empty!");
+                    return;
+                }
+                _fullInventory.updatePart(_fullInventory.getAllParts().indexOf(modPart), new Outsourced(
+                        modPart.getId(),
+                        nameEntry.getText(),
+                        Double.parseDouble(pcEntry.getText()),
+                        Integer.parseInt(invEntry.getText()),
+                        Integer.parseInt(minEntry.getText()),
+                        Integer.parseInt(maxEntry.getText()),
+                        compNameEntry.get().getText()
+                ));
+            }
+
             _displayedInventory = _fullInventory;
             modifyPartStage.close();
             mainStage.show();
         });
 
-        Button modOutBtn = new Button("Save");
-        modOutBtn.setOnMouseClicked(mouseEvent -> {
-            _fullInventory.updatePart(_fullInventory.getAllParts().indexOf(modPart), new Outsourced(
-                    modPart.getId(),
-                    nameEntry.getText(),
-                    Double.parseDouble(pcEntry.getText()),
-                    Integer.parseInt(invEntry.getText()),
-                    Integer.parseInt(minEntry.getText()),
-                    Integer.parseInt(maxEntry.getText()),
-                    compNameEntry.get().getText()
-            ));
-            _displayedInventory = _fullInventory;
-            modifyPartStage.close();
-            mainStage.show();
-        });
-
-        btnGrid.add(modInBtn, 1, 0);
+        btnGrid.add(modBtn, 1, 0);
 
         Pane s2 = new Pane();
         s2.setPrefWidth(50);
@@ -704,10 +862,7 @@ public class Main extends Application {
         root.add(btnGrid, 0, 7);
 
         rb1.setOnAction( action -> {
-            if(root.getChildren().contains(compNameGrid)) {
-                root.getChildren().remove(compNameGrid);
-                btnGrid.getChildren().remove(modOutBtn);
-            }
+            root.getChildren().remove(compNameGrid);
             dispIn.set(new InHouse(
                     modPart.getId(),
                     nameEntry.getText(),
@@ -719,11 +874,9 @@ public class Main extends Application {
             ));
             dispOut.set(null);
             root.add(machIDGrid, 0, 6);
-            btnGrid.add(modInBtn, 1, 0);
         });
         rb2.setOnAction( action -> {
             root.getChildren().remove(machIDGrid);
-            btnGrid.getChildren().remove(modInBtn);
             dispOut.set(new Outsourced(
                     modPart.getId(),
                     nameEntry.getText(),
@@ -735,7 +888,6 @@ public class Main extends Application {
             ));
             dispIn.set(null);
             root.add(compNameGrid, 0, 6);
-            btnGrid.add(modOutBtn, 1, 0);
         });
 
         return scene;
@@ -751,8 +903,7 @@ public class Main extends Application {
         addProductStage.show();
     }
 
-    private @NotNull
-    Scene addProductScreenDef(GridPane root) {
+    private Scene addProductScreenDef(GridPane root) {
         Scene scene = new Scene(root, 700, 500);
 
         GridPane leftPane = new GridPane();
@@ -867,12 +1018,19 @@ public class Main extends Application {
         rightPane.add(partTableView1, 0, 1);
 
         searchBtn.setOnAction(actionEvent -> {
-            if(searchArea.getText().equals("")){
+            String searchText = searchArea.getText();
+            if(searchText.equals("")){
                 partTableView1.setItems(_fullInventory.getAllParts());
                 partTableView1.refresh();
                 return;
             }
-            partTableView1.setItems(_fullInventory.lookupPart(searchArea.getText()));
+            ObservableList<Part> tmp = FXCollections.observableArrayList();
+            _fullInventory.getAllParts().forEach(prod -> {
+                if(prod.getName().contains(searchText)) {
+                    tmp.add(prod);
+                }
+            });
+            partTableView1.setItems(tmp);
             partTableView1.refresh();
         });
 
@@ -909,6 +1067,8 @@ public class Main extends Application {
                 partsList.add(item);
                 partTableView2.setItems(partsList);
                 partTableView2.refresh();
+            } else {
+                okBtnDialog("Cannot associate duplicate part.");
             }
         });
 
@@ -926,11 +1086,65 @@ public class Main extends Application {
 
         Button addProductBtn = new Button("Save");
         addProductBtn.setOnMouseClicked(mouseEvent -> {
+            if(nameEntry.getText().equals("")) {
+                okBtnDialog("Name field cannot be empty!");
+                return;
+            }
+            if (pcEntry.getText().equals("")) {
+                okBtnDialog("Price/Cost field cannot be empty!");
+                return;
+            }
+            try {
+                if(Double.parseDouble(pcEntry.getText()) <= 0) {
+                    throw new NumberFormatException();
+                }
+            } catch(NumberFormatException e) {
+                okBtnDialog("Price/Cost format is invalid!");
+                return;
+            }
+            if (invEntry.getText().equals("")) {
+                okBtnDialog("Inv field cannot be empty!");
+                return;
+            }
+            try {
+                if(Integer.parseInt(invEntry.getText()) < 1) {
+                    throw new NumberFormatException();
+                }
+            } catch(NumberFormatException e) {
+                okBtnDialog("Inv format is invalid! Must be integer > 0!");
+                return;
+            }
+            if (minEntry.getText().equals("")) {
+                okBtnDialog("Min field cannot be empty!");
+                return;
+            }
+            try {
+                if(Integer.parseInt(minEntry.getText()) < 1) {
+                    throw new NumberFormatException();
+                }
+            } catch(NumberFormatException e) {
+                okBtnDialog("Min format is invalid! Must be integer > 0!");
+                return;
+            }
+            if (maxEntry.getText().equals("")) {
+                okBtnDialog("Max field cannot be empty!");
+                return;
+            }
+            try {
+                if(Integer.parseInt(maxEntry.getText()) < 1) {
+                    throw new NumberFormatException();
+                }
+            } catch(NumberFormatException e) {
+                okBtnDialog("Max format is invalid! Must be integer > 0!");
+                return;
+            }
+            if(!(Integer.parseInt(maxEntry.getText()) > Integer.parseInt(invEntry.getText())
+                    && Integer.parseInt(invEntry.getText()) > Integer.parseInt(minEntry.getText()))) {
+                okBtnDialog("Max must be greater than Inv, and Inv must be greater than Min!");
+                return;
+            }
             if(partsList.isEmpty()) {
-                Dialog<String> errorDialog = new Dialog<>();
-                errorDialog.getDialogPane().setContentText("Please associate at least one part!");
-                errorDialog.getDialogPane().getButtonTypes().add(ButtonType.OK);
-                errorDialog.showAndWait();
+                okBtnDialog("Please associate at least one part!");
                 return;
             }
             Product newProd = new Product(
@@ -942,6 +1156,12 @@ public class Main extends Application {
                     Integer.parseInt(maxEntry.getText()));
             for (Part part : partsList) {
                 newProd.addAssociatedPart(part);
+            }
+            AtomicReference<Double> newTotal = new AtomicReference<Double>(0.0);
+            newProd.getAllAssociatedParts().forEach(part -> newTotal.updateAndGet(v -> v + part.getPrice()));
+            if(newProd.getPrice() < newTotal.get()) {
+                okBtnDialog("Cost of associated parts mustn't exceed Product price!");
+                return;
             }
             _fullInventory.addProduct(newProd);
             _displayedInventory = _fullInventory;
@@ -977,8 +1197,7 @@ public class Main extends Application {
         modifyProductStage.show();
     }
 
-    private @NotNull
-    Scene modifyProductScreenDef(GridPane root, Product modProd) {
+    private Scene modifyProductScreenDef(GridPane root, Product modProd) {
         Scene scene = new Scene(root, 700, 500);
 
         GridPane leftPane = new GridPane();
@@ -1097,12 +1316,19 @@ public class Main extends Application {
         rightPane.add(partTableView1, 0, 1);
 
         searchBtn.setOnAction(actionEvent -> {
-            if(searchArea.getText().equals("")){
+            String searchText = searchArea.getText();
+            if(searchText.equals("")){
                 partTableView1.setItems(_fullInventory.getAllParts());
                 partTableView1.refresh();
                 return;
             }
-            partTableView1.setItems(_fullInventory.lookupPart(searchArea.getText()));
+            ObservableList<Part> tmp = FXCollections.observableArrayList();
+            _fullInventory.getAllParts().forEach(prod -> {
+                if(prod.getName().contains(searchText)) {
+                    tmp.add(prod);
+                }
+            });
+            partTableView1.setItems(tmp);
             partTableView1.refresh();
         });
 
@@ -1139,6 +1365,8 @@ public class Main extends Application {
                 partsList.add(item);
                 partTableView2.setItems(partsList);
                 partTableView2.refresh();
+            } else {
+                okBtnDialog("Cannot associate duplicate part.");
             }
         });
 
@@ -1160,19 +1388,83 @@ public class Main extends Application {
 
         Button modifyProductBtn = new Button("Save");
         modifyProductBtn.setOnMouseClicked(mouseEvent -> {
-            if(partsList.isEmpty()) {
-                Dialog<String> errorDialog = new Dialog<>();
-                errorDialog.getDialogPane().setContentText("Please associate at least one part!");
-                errorDialog.getDialogPane().getButtonTypes().add(ButtonType.OK);
-                errorDialog.showAndWait();
+            if(nameEntry.getText().equals("")) {
+                okBtnDialog("Name field cannot be empty!");
                 return;
             }
-            _fullInventory.updateProduct(_fullInventory.getAllProducts().indexOf(_fullInventory.lookupProduct(modProd.getId())), modProd);
+            if (pcEntry.getText().equals("")) {
+                okBtnDialog("Price/Cost field cannot be empty!");
+                return;
+            }
+            try {
+                if(Double.parseDouble(pcEntry.getText()) <= 0) {
+                    throw new NumberFormatException();
+                }
+            } catch(NumberFormatException e) {
+                okBtnDialog("Price/Cost format is invalid!");
+                return;
+            }
+            if (invEntry.getText().equals("")) {
+                okBtnDialog("Inv field cannot be empty!");
+                return;
+            }
+            try {
+                if(Integer.parseInt(invEntry.getText()) < 1) {
+                    throw new NumberFormatException();
+                }
+            } catch(NumberFormatException e) {
+                okBtnDialog("Inv format is invalid! Must be integer > 0!");
+                return;
+            }
+            if (minEntry.getText().equals("")) {
+                okBtnDialog("Min field cannot be empty!");
+                return;
+            }
+            try {
+                if(Integer.parseInt(minEntry.getText()) < 1) {
+                    throw new NumberFormatException();
+                }
+            } catch(NumberFormatException e) {
+                okBtnDialog("Min format is invalid! Must be integer > 0!");
+                return;
+            }
+            if (maxEntry.getText().equals("")) {
+                okBtnDialog("Max field cannot be empty!");
+                return;
+            }
+            try {
+                if(Integer.parseInt(maxEntry.getText()) < 1) {
+                    throw new NumberFormatException();
+                }
+            } catch(NumberFormatException e) {
+                okBtnDialog("Max format is invalid! Must be integer > 0!");
+                return;
+            }
+            if(!(Integer.parseInt(maxEntry.getText()) > Integer.parseInt(invEntry.getText())
+                    && Integer.parseInt(invEntry.getText()) > Integer.parseInt(minEntry.getText()))) {
+                okBtnDialog("Max must be greater than Inv, and Inv must be greater than Min!");
+                return;
+            }
+            if(partsList.isEmpty()) {
+                okBtnDialog("Please associate at least one part!");
+                return;
+            }
+
             modProd.setName(nameEntry.getText());
             modProd.setPrice(Double.parseDouble(pcEntry.getText()));
             modProd.setStock(Integer.parseInt(invEntry.getText()));
             modProd.setMin(Integer.parseInt(minEntry.getText()));
             modProd.setMax(Integer.parseInt(maxEntry.getText()));
+
+
+            AtomicReference<Double> newTotal = new AtomicReference<Double>(0.0);
+            modProd.getAllAssociatedParts().forEach(part -> newTotal.updateAndGet(v -> v + part.getPrice()));
+            if(modProd.getPrice() < newTotal.get()) {
+                okBtnDialog("Cost of associated parts mustn't exceed Product price!");
+                return;
+            }
+
+            _fullInventory.updateProduct(_fullInventory.getAllProducts().indexOf(_fullInventory.lookupProduct(modProd.getId())), modProd);
             _displayedInventory = _fullInventory;
             modifyProductStage.close();
             mainStage.show();
@@ -1195,7 +1487,7 @@ public class Main extends Application {
         return scene;
     }
 
-    private Boolean confirmDialog(@Nullable Stage thisStage) {
+    private Boolean confirmDialog(Stage thisStage) {
         AtomicReference<Boolean> retval = new AtomicReference<>();
         retval.set(false);
         Dialog<ButtonType> confirmDialog = new Dialog<>();
@@ -1210,6 +1502,13 @@ public class Main extends Application {
             }
         });
         return retval.get();
+    }
+
+    private void okBtnDialog(String msg) {
+        Dialog<ButtonType> cannotAddDuplicatePartDialog = new Dialog<>();
+        cannotAddDuplicatePartDialog.getDialogPane().setContentText(msg);
+        cannotAddDuplicatePartDialog.getDialogPane().getButtonTypes().add(ButtonType.OK);
+        cannotAddDuplicatePartDialog.showAndWait();
     }
 
     private static int getNextPartId() {

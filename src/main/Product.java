@@ -3,10 +3,8 @@ package main;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import java.lang.reflect.Constructor;
-
 public class Product {
-    private ObservableList<Part> _associatedParts;
+    private final ObservableList<Part> _associatedParts;
     private int _id;
     private String _name;
     private double _price;
