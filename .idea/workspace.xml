@@ -20,7 +20,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cdb932d9-7e58-4d94-93a9-e7b232ef17da" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/runConfigurations/Build_and_Run.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -214,7 +214,14 @@
       <option name="project" value="LOCAL" />
       <updated>1592448739069</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Include run config">
+      <created>1592452078682</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1592452078682</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
@@ -239,17 +246,18 @@
     <MESSAGE value="Upload JDK 1.8 for complete compilable package" />
     <MESSAGE value="Added back .idea" />
     <MESSAGE value="Update module settings" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update module settings" />
+    <MESSAGE value="Include run config" />
+    <option name="LAST_COMMIT_MESSAGE" value="Include run config" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="128" y="23" width="1024" height="777" key="#Project_Structure" timestamp="1592452021347">
+    <state x="128" y="23" width="1024" height="777" key="#Project_Structure" timestamp="1592452195669">
       <screen x="0" y="0" width="1280" height="800" />
     </state>
-    <state x="128" y="23" width="1024" height="777" key="#Project_Structure/0.0.1280.800@0.0.1280.800" timestamp="1592452021347" />
-    <state x="104" y="62" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1592451889763">
+    <state x="128" y="23" width="1024" height="777" key="#Project_Structure/0.0.1280.800@0.0.1280.800" timestamp="1592452195669" />
+    <state x="104" y="62" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1592452267783">
       <screen x="0" y="0" width="1280" height="800" />
     </state>
-    <state x="104" y="62" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1280.800@0.0.1280.800" timestamp="1592451889763" />
+    <state x="104" y="62" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1280.800@0.0.1280.800" timestamp="1592452267783" />
     <state x="427" y="112" key="#com.intellij.ide.macro.MacrosDialog" timestamp="1592451874931">
       <screen x="0" y="0" width="1280" height="800" />
     </state>
@@ -278,10 +286,10 @@
       <screen x="0" y="0" width="1280" height="800" />
     </state>
     <state x="149" y="39" key="SettingsEditor/0.0.1280.800@0.0.1280.800" timestamp="1592448489783" />
-    <state x="240" y="140" key="Vcs.Push.Dialog.v2" timestamp="1592448963011">
+    <state x="240" y="140" key="Vcs.Push.Dialog.v2" timestamp="1592452080612">
       <screen x="0" y="0" width="1280" height="800" />
     </state>
-    <state x="240" y="140" key="Vcs.Push.Dialog.v2/0.0.1280.800@0.0.1280.800" timestamp="1592448963011" />
+    <state x="240" y="140" key="Vcs.Push.Dialog.v2/0.0.1280.800@0.0.1280.800" timestamp="1592452080612" />
     <state x="463" y="141" key="com.intellij.openapi.vcs.changes.SpecificFilesViewDialog" timestamp="1592094854615">
       <screen x="0" y="0" width="1280" height="800" />
     </state>

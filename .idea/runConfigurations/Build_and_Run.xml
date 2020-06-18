@@ -1,11 +1,10 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Build and Run" type="Application" factoryName="Application">
-    <option name="ALTERNATIVE_JRE_PATH" value="1.8 Local" />
+    <option name="ALTERNATIVE_JRE_PATH" value="1.8" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
     <option name="INCLUDE_PROVIDED_SCOPE" value="true" />
     <option name="MAIN_CLASS_NAME" value="main.Main" />
     <module name="C482" />
-    <option name="WORKING_DIRECTORY" value="$ModuleFileDir$" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="main.*" />
